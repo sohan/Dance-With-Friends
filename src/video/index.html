@@ -17,21 +17,28 @@
 <!--<device type="media"></device>-->
 <video id="webcam" autoplay width="640" height="480"></video>
 
+<video id="video-demo" controls="controls" poster="videos/jsdetection.jpg" width="640" height="480"  onclick="if(/Android/.test(navigator.userAgent))this.play();">
+	<source src="videos/jsdetection.mp4" type="video/mp4" />
+	<source src="videos/jsdetection.ogv" type="video/ogg" />
+	<source src="videos/jsdetection.webm" type="video/webm" />
+	Your browser doesn't support the html 5 video tag.
+</video>
+
 <canvas id="canvas-source" width="640" height="480"></canvas>
 <canvas id="canvas-blended" width="640" height="480"></canvas>
 
 <div id="arrows">
+	<div id="back">
+		<img id="arrow0b" src="images/arrow0.png"/>
+		<img id="arrow1b" src="images/arrow1.png"/>
+		<img id="arrow2b" src="images/arrow2.png"/>
+		<img id="arrow3b" src="images/arrow3.png"/>
+	</div>
 	<div id="front">
 		<img id="arrow0" src="images/arrow0b.png"/>
 		<img id="arrow1" src="images/arrow1b.png"/>
 		<img id="arrow2" src="images/arrow2b.png"/>
 		<img id="arrow3" src="images/arrow3b.png"/>
-	</div>
-	<div id="back">
-		<img id="arrow0" src="images/arrow0.png"/>
-		<img id="arrow1" src="images/arrow1.png"/>
-		<img id="arrow2" src="images/arrow2.png"/>
-		<img id="arrow3" src="images/arrow3.png"/>
 	</div>
 </div>
 
