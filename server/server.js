@@ -25,10 +25,11 @@ var game_state = {
 
 
 
-// Work with our socket connection:
+// io.sockets references all sockets
 io.sockets.on('connection', function (socket) {
 
-  socket.on('start', function(data) { // Start game loop
+  // socket is only the newly connected socket
+  socket.on('start', function(data) { // Start game loop when someone hits it
     if (!state.running) {
       state.time_started = new Date().getTime();
       state.running = true;
@@ -43,7 +44,7 @@ io.sockets.on('connection', function (socket) {
 game_loop = function(socket){
   game_state.time = new Date().getTime() - state.time_started;
 
-  socket.emit('sync', game_state);
+  io.sockets.emit('sync', game_state);
 };
 
 
