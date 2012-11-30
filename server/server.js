@@ -63,6 +63,10 @@ io.sockets.on('connection', function (socket) {
 
             setInterval(function(){game_loop(socket)}, update_speed);
         }
+        //return the game time
+        socket.emit('startGame', function() {
+            time: new Date().getTime() - state.time_started
+        });
     });
 
     socket.on('move', function(data) {
@@ -115,7 +119,6 @@ init_player = function(id) {
 
 // Route our basic page
 app.get('/dance', function (req, res) {
-    var filepath = path.normalize(__dirname + "/index.html");
     req.authenticate(['facebook'], function(error, authenticated) {
         if (authenticated) {
             var details = req.getAuthDetails();
