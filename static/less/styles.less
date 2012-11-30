@@ -11,6 +11,7 @@
 html, body, #game-container, .game-container, .pane #user-meta-container {
     height: 100%;
     overflow:hidden;
+    text-transform: uppercase;
 }
 
 #user-meta-container {
@@ -213,7 +214,6 @@ html, body, #game-container, .game-container, .pane #user-meta-container {
     }
 }
 
-
 .center {
     margin-left: auto;
     margin-right: auto;
@@ -308,4 +308,28 @@ html, body, #game-container, .game-container, .pane #user-meta-container {
 
 .right {
     position: relative;
+}
+
+#loading {
+    position:absolute;
+    left: 50%;
+    top: 50%;
+    width: 256px;
+    height:40px;
+    margin-left: -128px;
+    margin-top: -20px;
+    display: block;
+    img {
+        text-align:center;
+        width: 128px;
+        margin: 0 auto;
+        display: block;
+    }
+    .description {
+        text-align:center;
+        margin-top:10px;
+        font-size: 20px;
+        line-height: 20px;
+        color: @grayDark;
+    }
 }
