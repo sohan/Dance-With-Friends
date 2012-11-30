@@ -13,7 +13,7 @@ define([
 
     Game.Model = Backbone.Model.extend({
         defaults: {
-            startTime: new Date().getTime(),
+            startTime: undefined,
             currentTime: undefined,
             players: {}, //id to player state
             arrows: {},
@@ -89,7 +89,7 @@ define([
             }
         },
         showMove: function(move, currentTime) {
-            Socket.doMove(move, currentTime);
+            Socket.doMove(move, currentTime + this.model.get('delay'));
         },
         scoreMove: function(timeDiff) {
             //time diff is in milliseconds
@@ -255,7 +255,8 @@ define([
         var initGame = function(delay) {
             console.log('delay', delay);
             var game = new Game.Model({
-                delay: delay
+                delay: delay,
+                startTime: new Date().getTime()
             });
             Socket.startGame();
             var gameView = new Game.View({
