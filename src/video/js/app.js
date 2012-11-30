@@ -59,8 +59,8 @@
 
     var timesHit = 0;
     var lastHits = [1000,1000,1000];
-    var oldAvgs = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
-    var newAvgs = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
+    var oldAvgs = [[0,0,0],[0,0,0],[0,0,0]];
+    var newAvgs = [[0,0,0],[0,0,0],[0,0,0]];
 
     // mirror video
     contextSource.translate(canvasSource.width, 0);
@@ -211,10 +211,11 @@
 
     function getPrevAvg(l) {
         var s = 0;
-        for (var i = 0; i < 5; i++) {
+        len = l.length;
+        for (var i = 0; i < len; i++) {
             s += l[i];
         }
-        return s / 5;
+        return s / len;
     }
 
     function checkAreas() {
