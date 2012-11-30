@@ -59,9 +59,13 @@
 
     var timesHit = 0;
     var lastHits = [1000,1000,1000];
-    var oldAvgs = [[0],[0],[0]];
-    var newAvgs = [[0],[0],[0]];
-    var outerAvgs = [[0],[0],[0]];
+    var numOldAvgs = 1;
+    var numNewAvgs = 1;
+    var numOuterAvgs = 1;
+    var outerThickness = 50;
+    var oldAvgs = [];
+    var newAvgs = [];
+    var outerAvgs = [];
     var repeatFrame = false;
 
     // mirror video
@@ -105,6 +109,21 @@
             note.area = {x:arrowPosX[i], y:arrowPosY[i],
                          width:note.visual.width, height:44};
             notes.push(note);
+            oldAvg = [];
+            newAvg = [];
+            outerAvg = [];
+            for (var j = 0; j < numOldAvgs; j++) {
+                oldAvg.push(0);
+            }
+            for (var j = 0; j < numNewAvgs; j++) {
+                newAvg.push(0);
+            }
+            for (var j = 0; j < numOuterAvgs; j++) {
+                outerAvg.push(0);
+            }
+            newAvgs.push(newAvg);
+            oldAvgs.push(oldAvg);
+            outerAvgs.push(outerAvg);
         }
         start();
     }
@@ -126,7 +145,7 @@
 
     function start() {
         $(canvasSource).show();
-        $(canvasBlended).show();
+        //$(canvasBlended).show();
         $("#arrows").show();
         $("#message").hide();
         $("#description").show();
@@ -238,14 +257,33 @@
         // loop over the note areas
         for (var r=0; r<3; ++r) {
             // get the pixels in a note area from the blended image
-            var blendedData = contextBlended.getImageData(notes[r].area.x, notes[r].area.y, notes[r].area.width, notes[r].area.height);
-            var blendedDataUp = contextBlended.getImageData(notes[r].area.x-80, notes[r].area.y-80, notes[r].area.width+160, 80);
-            var blendedDataDown = contextBlended.getImageData(notes[r].area.x-80, notes[r].area.y+notes[r].area.height,
-                                                              notes[r].area.width+160, 80);
-            var blendedDataLeft = contextBlended.getImageData(notes[r].area.x-80, notes[r].area.y, 80, notes[r].area.height);
-            var blendedDataRight = contextBlended.getImageData(notes[r].area.x+notes[r].area.width, notes[r].area.y,
-                                                               80, notes[r].area.height);
-            outs = [blendedDataUp, blendedDataDown, blendedDataLeft, blendedDataRight];
+            var blendedData =
+                contextBlended.getImageData(notes[r].area.x,
+                                            notes[r].area.y,
+                                            notes[r].area.width,
+                                            notes[r].area.height);
+            var blendedDataUp =
+                contextBlended.getImageData(notes[r].area.x-outerThickness,
+                                            notes[r].area.y-outerThickness,
+                                            notes[r].area.width+2*outerThickness,
+                                            outerThickness);
+            var blendedDataDown =
+                contextBlended.getImageData(notes[r].area.x-outerThickness,
+                                            notes[r].area.y+notes[r].area.height,
+                                            notes[r].area.width+2*outerThickness,
+                                            outerThickness);
+            var blendedDataLeft =
+                contextBlended.getImageData(notes[r].area.x-outerThickness,
+                                            notes[r].area.y,
+                                            outerThickness,
+                                            notes[r].area.height);
+            var blendedDataRight =
+                contextBlended.getImageData(notes[r].area.x+notes[r].area.width,
+                                            notes[r].area.y,
+                                            outerThickness,
+                                            notes[r].area.height);
+            outs = [blendedDataUp, blendedDataDown,
+                    blendedDataLeft, blendedDataRight];
             var i = 0;
             var average = 0;
             // loop over the pixels
