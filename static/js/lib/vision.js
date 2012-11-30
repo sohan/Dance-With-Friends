@@ -42,8 +42,15 @@ vision.startVision = function($, hit_callback) {
 
     initialize();
 
+    var handmode = true;
+
     var arrowPosX = [107,284,461];
     var arrowPosY = [300,400,300];
+
+    if (handmode) {
+        arrowPosX = [107,284,461];
+        arrowPosY = [20,20,20];
+    }
 
     var timeOut, lastImageData;
     var canvasSource = $("#canvas-source")[0];
@@ -69,6 +76,12 @@ vision.startVision = function($, hit_callback) {
     var upperMotionThreshold = 20;
     var lowerMotionThreshold = 20;
     var outerMotionThreshold = 15;
+
+    if (handmode) {
+        upperMotionThreshold = -1;
+        lowerMotionThreshold = 10;
+        outerMotionThreshold = 10000;
+    }
 
     var callback = hit_callback;
 
@@ -324,10 +337,18 @@ vision.startVision = function($, hit_callback) {
             outerAvgs[r].push(maxAvgOut);
             outerAvgs[r].shift();
             outerAvg = getPrevAvg(outerAvgs[r]);
-            if (prevAvg > upperMotionThreshold &&
-                average < lowerMotionThreshold &&
-                lastHits[r] > 5 &&
-                outerAvg < outerMotionThreshold) {
+
+            successPred = false;
+            if (handmode) {
+                successPred = average > lowerMotionThreshold &&
+                    lastHits[r] > 5;
+            } else {
+                successPred = prevAvg > upperMotionThreshold &&
+                    average < lowerMotionThreshold &&
+                    lastHits[r] > 5 &&
+                    outerAvg < outerMotionThreshold;
+            }
+            if (successPred) {
                 // over a small limit, consider that a movement is detected
                 // play a note and show a visual feedback to the user
                 lastHits[r] = 0;
