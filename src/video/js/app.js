@@ -59,7 +59,7 @@
 
     var timesHit = 0;
     var lastHits = [1000,1000,1000];
-    var prevAvgs = [0,0,0];
+    var prevAvgs = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
 
     // mirror video
     contextSource.translate(canvasSource.width, 0);
@@ -207,6 +207,14 @@
         }
     }
 
+    function getPrevAvg(r) {
+        var s = 0;
+        for (var i = 0; i < 5; i++) {
+            s += prevAvgs[r][i];
+        }
+        return s / 5;
+    }
+
     function checkAreas() {
         // loop over the note areas
         for (var r=0; r<3; ++r) {
@@ -222,7 +230,7 @@
             }
             // calculate an average between of the color values of the note area
             average = Math.round(average / (blendedData.data.length * 0.25));
-            prevAvg = prevAvgs[r];
+            prevAvg = getPrevAvg(r);
             if (prevAvg > 10 && average < 2 && lastHits[r] > 10) {
                 // over a small limit, consider that a movement is detected
                 // play a note and show a visual feedback to the user
@@ -232,7 +240,8 @@
                 $(notes[r].visual).fadeOut();
                 timesHit++;
             }
-            prevAvgs[r] = average;
+            prevAvgs[r].push(average);
+            prevAvgs[r].shift();
         }
     }
 
