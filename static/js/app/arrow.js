@@ -35,14 +35,17 @@ define([
         },
         updatePosition: function(currentTime) {
             var vel = App.gameInstance.get('velocity');
-            var timeElapsed = currentTime - this.model.get('startTimestamp');
-            
-            var y = this.model.get('startPos');
-            y -= vel * timeElapsed;
-            // Place the arrow where it needs to be to reach the top at this velocity
+            var timeLeft = this.model.get('finalTimestamp') - currentTime;
 
+            y = vel * timeLeft;
 
             this.model.set('pos', y);
+
+            if (y < -20 && y > -21)
+                console.log('as '+y+'  '+timeLeft)
+
+            // Shift the arrows up so the centers are the hit point
+            y -= parseInt(this.renderedEl.css('height')) / 2;
             this.renderedEl.css('top', y + 'px');
         },
         destroy: function() {
@@ -54,9 +57,9 @@ define([
         glow: function() {
             var el = this.renderedEl;
             el.addClass('glow');
-            setInterval(function() {
+            /*setInterval(function() {
                 el && el.removeClass('glow');
-            }, 500);
+            }, 500);*/
         },
         render: function() {
             var arrowContainer, klass;

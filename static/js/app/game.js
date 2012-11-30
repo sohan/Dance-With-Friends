@@ -13,6 +13,7 @@ define([
     Game.Model = Backbone.Model.extend({
         defaults: {
             startTime: new Date().getTime(),
+            currentTime: undefined,
             players: {}, //id to player state
             arrows: {},
             gameFPS: 30,
@@ -31,7 +32,7 @@ define([
         el: $('#game-container'),
         initialize: function() {
             this.interval = setInterval($.proxy(this.runGameLoop, this), 1000 / this.model.get('gameFPS'));
-            $(document).on('keyup', $.proxy(this.detectMove, this));
+            $(document).on('keydown', $.proxy(this.detectMove, this));
             this.arrows = [];            
             
             $(window).resize($.proxy(function() {
@@ -42,18 +43,30 @@ define([
             $(window).resize();
         },
         detectMove: function(e) {
-            var currentTime = this.model.getTimeOffset();
             var move = null;
+            var hit_box = '';
             if (e.which == 72) { //h
                 move = 'l';
+                hit_box = 'left';
             } else if (e.which == 74) { //j
                 move = 'd';
+                hit_box = 'down';
             } else if (e.which == 75) { //k
                 move = 'u';
             } else if (e.which == 76) { //l
                 move = 'r';
+                hit_box = 'right';
             }
-            this.processMove(move, currentTime);
+
+            this.processMove(move, this.model.get('currentTime'));
+
+            var el = $('#'+hit_box+'-spot-arrow');
+            el.addClass(hit_box+'-hit');
+            var intervalPointer;
+            intervalPointer = setInterval(function() {
+                el.removeClass(hit_box+'-hit');
+                clearInterval(intervalPointer);
+            }, 200);
         },
         processMove: function(move, currentTime) {
             if (move) {
@@ -61,12 +74,15 @@ define([
                 _.each(this.arrows, function(arrow) {
                     if (move == arrow.model.get('direction')) {
                         //TODO: check if timestamp is based off the right vars
-                        var timeDiff = arrow.model.get('finalTimestamp') - currentTime;
-                        console.log(timeDiff);
+                        var timeDiff = Math.abs(arrow.model.get('finalTimestamp') - currentTime);
+                        
                         var score = this.scoreMove(timeDiff);
                         if (score > 0) {
+                            console.log(timeDiff);
                             this.updateScore(score, arrow);
                         }
+
+                       
                     }
                 }, this);
             }
@@ -84,9 +100,8 @@ define([
              * 3: awesome
              * 4: perfect
              * */
-            if (timeDiff < 0) {
-                return 0;
-            } else if (timeDiff < 50) {
+            
+            if (timeDiff < 50) {
                 return 4;
             } else if (timeDiff < 100) {
                 return 3;
@@ -101,8 +116,6 @@ define([
         updateScore: function(score, arrow) {
             App.user.set('score', App.user.get('score') + score * 1000);
             arrow.glow();
-            //TODO: show popup with score word
-            //TODO: highlight the arrow or something
         },
         removeArrows: function(forRemoval) {
             _.each(forRemoval, function(arrow) {
@@ -114,12 +127,15 @@ define([
              _.each(this.arrows, function(arrow) {
                 arrow.updatePosition(currentTime);
                 var pos = arrow.model.get('pos');
-                if (pos < 0) {
+                if (pos < -500 ) {
                     arrow.destroy();
                     forRemoval.push(arrow);
                 }
+
             }, this);
             this.removeArrows(forRemoval);
+
+            
         },
         addNewArrows: function(currentTime) {
             // Add arrows within the timestamp buffer
@@ -134,7 +150,6 @@ define([
                         this.model.get('timeToTop')
                          + this.model.get('bufferZoneTime')
                          + currentTime) {
-                    console.log('added arrow ', currentSong[songIndex].type);
                     this.arrows.push(new Arrow.View({
                         model: new Arrow.Model({
                             direction: currentSong[songIndex].type,
@@ -157,6 +172,8 @@ define([
             var currentTime = this.model.getTimeOffset();
             this.addNewArrows(currentTime);
             this.updateArrows(currentTime);
+
+            this.model.set('currentTime', currentTime);
         },
         render: function() {
         },

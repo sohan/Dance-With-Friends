@@ -1,4 +1,10 @@
 @import "bootstrap-less/bootstrap.less"; 
+
+@arrow_size: 80px;
+@arrow_hit_size: 110px;
+@spot_size: 110px;
+@hit_buffer: 50px; /* How much top margin for the hit zones */
+
 html, body, #game-container, .game-container, .pane {
     height: 100%;
     overflow:hidden;
@@ -20,7 +26,9 @@ html, body, #game-container, .game-container, .pane {
 
 
 #arrows-container {
+    float: initial;
     height: 100%;
+    padding-top: @hit_buffer;
 }
 
 .arrow-lane {
@@ -31,24 +39,79 @@ html, body, #game-container, .game-container, .pane {
 .arrow {
     position: absolute;
     bottom: 0px;
-    height: 40px;
-    width: 40px;
+    height: @arrow_size;
+    width: @arrow_size;
+    left: 50%;
+    margin-left: -1 * @arrow_size / 2;
+    margin-top: -1 * @arrow_size / 2;
+    
+    background-size: 100%;
 
     &.left {
-        background: @green;
+        background-image: url('../img/left.png');
     }
     &.right {
-        background: @black;
+        background-image: url('../img/right.png');
     }
     &.up {
-        background: @purple;
+        background-image: url('../img/up.png');
     }
     &.down {
-        background: @orange;
+        background-image: url('../img/down.png');
     }
 }
-
 .glow {
-    .transition(text-shadow 1s linear);
-    .box-shadow(0px 0px 20px @red);
+    -webkit-transition: opacity .3s linear, all .3s linear;
+    height: @arrow_hit_size;
+    width: @arrow_hit_size;
+    margin-left: -1 * @arrow_hit_size / 2;
+    opacity: 0;
+
 }
+
+#arrow-spots {
+    float: left;
+    width: 100%;
+    height: @spot_size;
+    left: 0;
+    top: 50;
+    padding-top: @hit_buffer;
+}
+
+.spot-container {
+    position: relative;
+    height: 100%;
+}
+.spot {
+    position: relative;
+    height: @spot_size;
+    width: @spot_size;
+    left: 50%;
+    margin-left: -1 * @spot_size / 2;
+
+    background-size: 100%;    
+}
+
+.left-spot {
+    background-image: url('../img/left_zone.png');
+}
+.left-hit {
+    background-image: url('../img/left_zone_hit.png');
+}
+
+
+.right-spot {
+    background-image: url('../img/right_zone.png');
+}
+.right-hit {
+    background-image: url('../img/right_zone_hit.png');
+}
+
+
+.down-spot {
+    background-image: url('../img/down_zone.png');
+}
+.down-hit {
+    background-image: url('../img/down_zone_hit.png');
+}
+
