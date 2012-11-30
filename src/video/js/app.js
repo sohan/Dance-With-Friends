@@ -42,8 +42,8 @@
             null
     );
 
-    var arrowPosX = [107,284,461];
-    var arrowPosY = [300,400,300];
+    var arrowPosX = [137,284,431];
+    var arrowPosY = [300,380,300];
 
     var timeOut, lastImageData;
     var canvasSource = $("#canvas-source")[0];
@@ -109,7 +109,7 @@
                 visual: $("#arrow" + i)[0]
             };
             note.area = {x:arrowPosX[i], y:arrowPosY[i],
-                         width:note.visual.width, height:44};
+                         width:note.visual.width, height:note.visual.height};
             notes.push(note);
             oldAvg = [];
             newAvg = [];
@@ -170,11 +170,11 @@
     }
 
     function updateCounter() {
-        document.getElementById("hitcounter").innerHTML =
-            "<table><tr>" +
-            "<td>" + getPrevAvg(oldAvgs[0]) + "</td>" +
-            "<td>" + getPrevAvg(newAvgs[0]) + "</td>" +
-            "<td>" + getPrevAvg(outerAvgs[0]) + "</td></tr></table>";
+//        document.getElementById("hitcounter").innerHTML =
+//            "<table><tr>" +
+//            "<td>" + getPrevAvg(oldAvgs[0]) + "</td>" +
+//            "<td>" + getPrevAvg(newAvgs[0]) + "</td>" +
+//            "<td>" + getPrevAvg(outerAvgs[0]) + "</td></tr></table>";
     }
 
     function updateLastHits() {
