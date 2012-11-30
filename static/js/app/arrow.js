@@ -10,6 +10,7 @@ define([
     Arrow.Model = Backbone.Model.extend({
         defaults: {
             timestamp: new Date().getTime(),
+            finalTimestamp: 0.0,
             direction: '',
             pos: 0.0,
         },
@@ -39,6 +40,13 @@ define([
             this.renderedEl && this.renderedEl.remove();
             this.model.off(null, null, this);
             this.off(null, null, this);
+        },
+        glow: function() {
+            var el = this.renderedEl;
+            el.addClass('glow');
+            setInterval(function() {
+                el && el.removeClass('glow');
+            }, 500);
         },
         render: function() {
             var arrowContainer, klass;

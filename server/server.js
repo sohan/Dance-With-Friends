@@ -14,7 +14,9 @@ var update_speed = 100; //100 ms
 // Server's state stuff (flags n shit)
 var state = {
   running: false, 
-  time_started: 0
+  time_started: 0,
+  players: {
+  },
 };
 
 // State that the user needs to know about (ie. for the game)
@@ -23,10 +25,10 @@ var game_state = {
   current_song: 'Gungam'
 };
 
-
-
 // io.sockets references all sockets
 io.sockets.on('connection', function (socket) {
+
+  init_player(socket.sessionId);
 
   // socket is only the newly connected socket
   socket.on('start', function(data) { // Start game loop when someone hits it
@@ -47,11 +49,17 @@ game_loop = function(socket){
   io.sockets.emit('sync', game_state);
 };
 
+init_player = function(sessionId) {
+  state.players[sessionId] = {
+    score: 0
+  };
+}
+
 
 // Route our basic page
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
 });
 
-server.listen(8080);
+server.listen(8082);
 

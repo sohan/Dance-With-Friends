@@ -8,6 +8,7 @@ require.config({
     underscore: '../lib/underscore-min',
     backbone: '../lib/backbone-min',
     bootstrap: '../lib/bootstrap.min',
+    socket: '../lib/
   },
   shim: {
     underscore: {
