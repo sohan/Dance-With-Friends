@@ -41,8 +41,6 @@ define([
 
             this.model.set('pos', y);
 
-            if (y < -20 && y > -21)
-
             // Shift the arrows up so the centers are the hit point
             y -= parseInt(this.renderedEl.css('height')) / 2;
             this.renderedEl.css('top', y + 'px');

@@ -2,7 +2,9 @@ define([
   'app',
 ], function(App) {
     var Songs = App.Songs || {};
-    
+    Songs['Gangam Style'] = [
+      {'timestamp': 3000, 'type': 'l'}
+      ];
     Songs['Gangam Style'] = [
       {'timestamp': 3000, 'type': 'l'},
       {'timestamp': 7899, 'type': 'l'},
