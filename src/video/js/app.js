@@ -59,9 +59,10 @@
 
     var timesHit = 0;
     var lastHits = [1000,1000,1000];
-    var oldAvgs = [[0,0,0],[0,0,0],[0,0,0]];
-    var newAvgs = [[0,0,0],[0,0,0],[0,0,0]];
-    var outerAvgs = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
+    var oldAvgs = [[0],[0],[0]];
+    var newAvgs = [[0],[0],[0]];
+    var outerAvgs = [[0,0,0],[0,0,0],[0,0,0]];
+    var repeatFrame = false;
 
     // mirror video
     contextSource.translate(canvasSource.width, 0);
@@ -135,9 +136,11 @@
     function update() {
         drawVideo();
         blend();
-        checkAreas();
-        updateCounter();
-        updateLastHits();
+        if (!repeatFrame) {
+            checkAreas();
+            updateCounter();
+            updateLastHits();
+        }
         timeOut = setTimeout(update, 1000/60);
     }
 
@@ -146,11 +149,11 @@
     }
 
     function updateCounter() {
-//        document.getElementById("hitcounter").innerHTML =
-//            "<table><tr>" +
-//            "<td>" + getPrevAvg(oldAvgs[0]) + "</td>" +
-//            "<td>" + getPrevAvg(newAvgs[0]) + "</td>" +
-//            "<td>" + getPrevAvg(outerAvgs[0]) + "</td></tr></table>";
+        document.getElementById("hitcounter").innerHTML =
+            "<table><tr>" +
+            "<td>" + getPrevAvg(oldAvgs[0]) + "</td>" +
+            "<td>" + getPrevAvg(newAvgs[0]) + "</td>" +
+            "<td>" + getPrevAvg(outerAvgs[0]) + "</td></tr></table>";
     }
 
     function updateLastHits() {
@@ -170,10 +173,12 @@
         var blendedData = contextSource.createImageData(width, height);
         // blend the 2 images
         differenceAccuracy(blendedData.data, sourceData.data, lastImageData.data);
-        // draw the result in a canvas
-        contextBlended.putImageData(blendedData, 0, 0);
-        // store the current webcam image
-        lastImageData = sourceData;
+        if (!repeatFrame) {
+            // draw the result in a canvas
+            contextBlended.putImageData(blendedData, 0, 0);
+            // store the current webcam image
+            lastImageData = sourceData;
+        }
     }
 
     function fastAbs(value) {
@@ -201,6 +206,7 @@
     function differenceAccuracy(target, data1, data2) {
         if (data1.length != data2.length) return null;
         var i = 0;
+        var flag = false;
         while (i < (data1.length * 0.25)) {
             var average1 = (data1[4*i] + data1[4*i+1] + data1[4*i+2]) / 3;
             var average2 = (data2[4*i] + data2[4*i+1] + data2[4*i+2]) / 3;
@@ -210,6 +216,12 @@
             target[4*i+2] = diff;
             target[4*i+3] = 0xFF;
             ++i;
+            if (diff != 0) flag = true;
+        }
+        if (!flag) {
+            repeatFrame = true;
+        } else {
+            repeatFrame = false;
         }
     }
 
