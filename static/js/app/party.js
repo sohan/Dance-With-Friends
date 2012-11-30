@@ -21,7 +21,9 @@ define([
     });
 
     DanceParty.Collection = Backbone.Collection.extend({
-        model: DanceParty.PersonModel
+        model: DanceParty.PersonModel,
+        initialize: function() {
+        },
     });
 
 });

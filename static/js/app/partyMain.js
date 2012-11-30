@@ -25,5 +25,5 @@ require([
   'app',
 ], function(App) {
     // The "app" dependency is passed in as "App"
-    //dump facebook connect here
+    //
 });
