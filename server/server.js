@@ -43,7 +43,7 @@ io.sockets.on('connection', function (socket) {
 
 // used for time synchronization
 io.sockets.on('ping', function(socket){
-    socket.emit('ping', {time new Date().getTime()});
+    socket.emit('ping', {});
 };
 
 game_loop = function(socket){
