@@ -62,10 +62,15 @@ define([
         },
         render: function() {
             var score = this.model.get('score');
+            var streak = this.model.get('streak');
+            var streakTest = "";
+            if (streak > 2){
+                streakTest = " " + streak + "X";
+            }
             var word = Game.scoreToWord(score);
             if (word) {
                 this.$el.removeClass();
-                var div = $('<div class="text">' + word + '!</div>');
+                var div = $('<div class="text">' + word + streakTest + '!</div>');
                 this.$el.html(div);
                 setInterval(function() {
                     if (div.length)
@@ -80,7 +85,7 @@ define([
         el: $('#game-container'),
         initialize: function(options) {
             this.interval = setInterval($.proxy(this.runGameLoop, this), 1000 / this.model.get('gameFPS'));
-            $(document).on('keydown', $.proxy(this.detectMove, this));
+            $(document).on('keydown', $.proxy(this.detectMove, this))
             this.arrows = [];
 
             $(window).resize($.proxy(function() {
@@ -111,6 +116,8 @@ define([
                 $('#arrow1').hide();
                 $('#arrow2').hide();
             }
+
+            this.streaks = [0, 0, 0, 0, 0];
         },
         detectMove: function(e) {
             var hit_box = '';
@@ -125,7 +132,7 @@ define([
 
             this.processMove(hit_box, this.model.get('currentTime'));
 
-            
+
         },
         processMove: function(move_string, currentTime) {
             move = move_string.charAt(0);
@@ -180,12 +187,30 @@ define([
                 return 0;
             }
         },
+        updateStreak: function(score) {
+            var bonus = 0;
+            if(score > 1){
+                for(var i = 0; i < 5; i++){
+                    if(score == i){
+                        this.streaks[i] += 1;
+                        if(this.streaks[i] >= 3){
+                            bonus = (1 << (i - 2)) * 250;
+                        }
+                    } else {
+                        this.streaks[i] = 0;
+                    }
+                }
+            }
+            return bonus;
+        },
         updateScore: function(score, arrow, shouldGlow) {
+            var bonus = this.updateStreak(score);
             this.exclamation.set({
                 score: score,
+                streak: this.streaks[score],
                 cb: new Date().getTime()
             });
-            App.user.set('score', App.user.get('score') + score * 1000);
+            App.user.set('score', App.user.get('score') + score * 1000 + bonus);
             var scoreWord = Game.scoreToWord(score);
             App.user.set(scoreWord, App.user.get(scoreWord) + 1);
             if (shouldGlow)
@@ -273,7 +298,7 @@ define([
                 loadSongs();
             }
 
-            
+
         }
 
         sensor_hit = function(r) {
@@ -303,7 +328,7 @@ define([
             songBufferSource.connect(soundContext.destination);
             initGame();
             // Load our vision system from the namespace provided in vision.js
-           
+
         }
 
         var setDelay = function() {
