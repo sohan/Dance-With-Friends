@@ -2,7 +2,7 @@ var express = require('express')
   , http = require('http')
   , path = require('path');
 
-var dev = true;
+var dev = false;
 if (dev) {
     var fbId = '441141345973790';
     var fbSecret = 'b61f25df6461d99681c5927e1575f5a1';
@@ -10,7 +10,7 @@ if (dev) {
     var fbId = '449557481758969';
     var fbSecret = '09c40457a21e66b7e9711b7e73cabb8f';
 }
-var hostname = dev ? "localhost:8082" : "ec2-184-73-4-129.compute-1.amazonaws.com";
+var hostname = dev ? "localhost:8082" : "dance.sohanjain.com";
 var socketPort = dev ? "" : ":8080";
 var fbCallbackAddress = 'http://' + hostname + '/dance';
 

@@ -42,7 +42,7 @@ vision.startVision = function($, hit_callback) {
 
     initialize();
 
-    var handmode = false;
+    var handmode = true;
 
     var arrowPosX = [157,284,411];
     var arrowPosY = [300,380,300];
@@ -163,8 +163,11 @@ vision.startVision = function($, hit_callback) {
     }
 
     function start() {
-        $(canvasSource).show();
-        //$(canvasBlended).show();
+        if (!handmode) {
+            $(canvasSource).show();
+        } else {
+            $(canvasBlended).show();
+        }
         $("#arrows").show();
         $("#message").hide();
         $("#description").show();
@@ -184,10 +187,12 @@ vision.startVision = function($, hit_callback) {
 
     function drawVideo() {
         contextSource.drawImage(video, 0, 0, video.width, video.height);
-        contextSource.strokeStyle = "red";
-        contextSource.strokeRect(notes[0].area.x,notes[0].area.y,notes[0].area.width,notes[0].area.height);
-        contextSource.strokeRect(notes[1].area.x,notes[1].area.y,notes[1].area.width,notes[1].area.height);
-        contextSource.strokeRect(notes[2].area.x,notes[2].area.y,notes[2].area.width,notes[2].area.height);
+        if (!handmode) {
+            contextSource.strokeStyle = "red";
+            contextSource.strokeRect(notes[0].area.x,notes[0].area.y,notes[0].area.width,notes[0].area.height);
+            contextSource.strokeRect(notes[1].area.x,notes[1].area.y,notes[1].area.width,notes[1].area.height);
+            contextSource.strokeRect(notes[2].area.x,notes[2].area.y,notes[2].area.width,notes[2].area.height);
+        }
     }
 
     function updateCounter() {
@@ -252,8 +257,12 @@ vision.startVision = function($, hit_callback) {
         while (i < (data1.length * 0.25)) {
             var average1 = (data1[4*i] + data1[4*i+1] + data1[4*i+2]) / 3;
             var average2 = (data2[4*i] + data2[4*i+1] + data2[4*i+2]) / 3;
-            var diff = threshold(fastAbs(average1 - average2));
-            //var diff = fastAbs(average1 - average2);
+            var diff = 0;
+            if (!handmode) {
+                diff = threshold(fastAbs(average1 - average2));
+            } else {
+                diff = fastAbs(average1 - average2);
+            }
 
             target[4*i] = diff;
             target[4*i+1] = diff;
