@@ -66,6 +66,7 @@
     var newAvgs = [];
     var outerAvgs = [];
     var repeatFrame = false;
+    var motionThreshold = 8;
 
     // mirror video
     contextSource.translate(canvasSource.width, 0);
@@ -319,8 +320,8 @@
             outerAvgs[r].push(maxAvgOut);
             outerAvgs[r].shift();
             outerAvg = getPrevAvg(outerAvgs[r]);
-            if (prevAvg > 10 && average < 10 && lastHits[r] > 5 &&
-                outerAvg < 10) {
+            if (prevAvg > motionThreshold && average < motionThreshold &&
+                lastHits[r] > motionThreshold/2 && outerAvg < motionThreshold) {
                 // over a small limit, consider that a movement is detected
                 // play a note and show a visual feedback to the user
                 lastHits[r] = 0;
