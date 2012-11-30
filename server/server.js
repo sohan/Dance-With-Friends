@@ -1,10 +1,15 @@
 var express = require('express')
-  , http = require('http');
+  , http = require('http')
+  , path = require('path');
 
 var app = express();
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 
+var static_path = path.normalize(__dirname +'/../static');
+app.configure(function() {
+    app.use('/static', express.static(static_path));
+});
 
 // Vars (better way to organize all this)
 var users = {}
@@ -45,8 +50,8 @@ io.sockets.on('connection', function (socket) {
 
 // used for time synchronization
 io.sockets.on('ping', function(socket){
-    socket.emit('ping', {time new Date().getTime()});
-};
+    socket.emit('ping', {time: new Date().getTime()});
+});
 
 game_loop = function(socket){
   game_state.time = new Date().getTime() - state.time_started;
@@ -62,9 +67,9 @@ init_player = function(sessionId) {
 
 
 // Route our basic page
+var filepath = path.normalize(__dirname + "/../index.html");
 app.get('/', function (req, res) {
-  res.sendfile(__dirname + '/index.html');
+  res.sendfile(filepath);
 });
 
 server.listen(8082);
-
