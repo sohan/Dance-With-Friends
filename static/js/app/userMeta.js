@@ -17,6 +17,17 @@ define([
         },
         initialize: function() {
             this.on('change:score', this.sync, this);
+            FB.login(function(response) {
+                if (response.authResponse) {
+                    FB.api('/me', function(response) {
+                        Socket.setUser({
+                            id: response.id,
+                            name: response.name,
+                            pic: 'http://graph.facebook.com/' + response.username + '/picture'
+                        });
+                    });
+                }
+            });
         },
         sync: function() {
             Socket.updateScore(this.get('score'));
@@ -37,6 +48,8 @@ define([
         },
         syncUserMeta: function(data) {
             this.model.set('elapsedTime', data.time); 
+            this.model.set('name', data.name);
+            this.model.set('pic', data.pic);
             this.model.set('players', data.users);
         },
     });
