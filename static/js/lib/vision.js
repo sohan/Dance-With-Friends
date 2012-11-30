@@ -2,7 +2,7 @@ vision = {}
 
 
 
-vision.startVision = function($, hit_callback) {
+vision.startVision = function($, hit_callback, game_type) {
     function hasGetUserMedia() {
         // Note: Opera builds are unprefixed.
         return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
@@ -42,7 +42,12 @@ vision.startVision = function($, hit_callback) {
 
     initialize();
 
-    var handmode = true;
+    if (game_type == 'feet')
+        handmode = false;
+    else if (game_type == 'hands')
+        handmode = true;
+    else
+        handmode = true;
 
     var arrowPosX = [157,284,411];
     var arrowPosY = [300,380,300];

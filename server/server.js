@@ -2,7 +2,7 @@ var express = require('express')
   , http = require('http')
   , path = require('path');
 
-var dev = false;
+var dev = true;
 if (dev) {
     var fbId = '441141345973790';
     var fbSecret = 'b61f25df6461d99681c5927e1575f5a1';
@@ -132,12 +132,16 @@ app.get('/dance', function (req, res) {
         if (authenticated) {
             var details = req.getAuthDetails();
             console.log('details', details);
+
+            var game_type = req.query['game_type'];
+             console.log(game_type)
             res.render('dance', {
                 fbName: details.user.name,
                 fbId: details.user.id,
                 fbPic: 'https://graph.facebook.com/' + details.user.username + '/picture',
                 hostname: hostname,
-                socketPort: socketPort
+                socketPort: socketPort,
+                game_type: game_type
             });
         } else {
             res.write('<html><body><h1>couldnt log in</h1></body></html>');

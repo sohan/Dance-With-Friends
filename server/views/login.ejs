@@ -44,32 +44,40 @@
         // Additional initialization code such as adding Event Listeners goes here
 
       };
-      window.logged_in = false;
+      var logged_in = false;
 
       $(document).ready(function() {
         $('#fb-login').click(function() {
           
-
-          FB.login(function(response) {
-            if (response.authResponse) {
-              window.logged_in = true;
-              $('#game-picker').show();//'size', {'origin':'right'}, 500);
-              $('#fb-login').addClass('span8');
-              $('#fb-login').removeClass('span12');
-              $('#fb-login').html('Drop the Beat!');
-              //window.location = '/dance';
+          if (window.logged_in == false) {
+            FB.login(function(response) {
+              if (response.authResponse) {
+                window.logged_in = true;
+                $('#game-picker').show();//'size', {'origin':'right'}, 500);
+                $('#fb-login').addClass('span8');
+                $('#fb-login').removeClass('span12');
+                $('#fb-login').html('Drop the Beat!');
+                //window.location = '/dance';
+              } else {
+                alert('Fb login failed :(');
+              }
+            });
+          } else {
+            if ( $('#game-picker').html() == 'Feet'){
+              window.location = '/dance?game_type=feet';
             } else {
-              alert('Fb login failed :(');
+              window.location = '/dance?game_type=hands';
             }
-          });
+          }
         });
 
         $('#game-picker').click(function() {
           
           if ( $('#game-picker').html() == 'Feet'){
             // show tool tip
-            $('#tooltip').hide('puff', {'percent':100}, 500);
             $('#game-picker').html('Hands');
+            $('#tooltip').hide('puff', {'percent':100}, 500);
+            
           } else {
             $('#game-picker').html('Feet');
             $('#tooltip').show('size', {'origin':['left']}, 300);
