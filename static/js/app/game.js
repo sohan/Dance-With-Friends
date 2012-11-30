@@ -17,7 +17,7 @@ define([
             startTime: undefined,
             currentTime: undefined,
             players: {}, //id to player state
-            gameType: 'hands', // 'feet'
+            game_type: 'hands', // 'feet'
             arrows: {},
             gameFPS: 30,
             velocity: .1,
@@ -120,7 +120,7 @@ define([
             soundManager.play('gangamstyle');
 
             // If we're using feet, position markers:
-            if (this.model.get('gameType')){
+            if (this.model.get('game_type') == 'feet'){
                 $('#arrow0').css('left', this.model.get('gameWidth') * .22 - $('#arrow0').width()/2)
                 $('#arrow1').css('left', this.model.get('gameWidth') * .498 - $('#arrow1').width()/2)
                 $('#arrow2').css('left', this.model.get('gameWidth') * .775 - $('#arrow2').width()/2)
@@ -350,11 +350,13 @@ define([
 
         var initGame = function(delay) {
             Game.loading_start('Loading game assets...');
+
             Socket.startGame();
             Socket.socket.on('startGame', function(data) {
                 Game.loading_end();
                 var game = new Game.Model({
                     startTime: new Date().getTime() - data.time - delay,
+                    game_type: window.game_type
                 });
                 var gameView = new Game.View({
                     model: game,
@@ -368,7 +370,7 @@ define([
                 App.user = user;
 
 
-                vision.startVision($, sensor_hit);
+                vision.startVision($, sensor_hit, window.game_type);
 
             });
         }
