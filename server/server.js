@@ -24,7 +24,8 @@ ejs.close = '}}';
 var static_path = path.normalize(__dirname +'/../static');
 app.configure(function() {
     app.set('view engine', 'ejs');
-    //app.use('/static', express.static(static_path));
+    if (dev)
+        app.use('/static', express.static(static_path));
     app.use(express.cookieParser('hellomoto'));
     app.use(express.session());
     app.use(auth([
