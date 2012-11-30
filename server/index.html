@@ -1,0 +1,24 @@
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var id = 1;
+
+  var socket = io.connect('http://localhost');
+  socket.on('sync', function (data) {
+    console.log(data);
+    var elem = document.getElementById('update');
+    elem.innerHTML = data.time;
+  });
+
+  var startGame = function(){
+    socket.emit('start', {})
+  }
+</script>
+
+
+<div onclick="startGame();">
+  START 
+</div>
+
+<div id="update">
+
+</div>
