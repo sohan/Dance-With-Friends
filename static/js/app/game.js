@@ -287,7 +287,7 @@ define([
             songBufferSource.connect(soundContext.destination);
             initGame();
             // Load our vision system from the namespace provided in vision.js
-            vision.startVision($, sensor_hit);
+           
         }
 
         var setDelay = function() {
@@ -337,6 +337,9 @@ define([
                 App.gameInstance = game;
                 App.gameView = gameView;
                 App.user = user;
+
+                
+                vision.startVision($, sensor_hit);
 
                 setDelay();
             });
