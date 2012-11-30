@@ -44,30 +44,19 @@ define([
             $(window).resize();
         },
         detectMove: function(e) {
-            var move = null;
             var hit_box = '';
             if (e.which == 72) { //h
-                move = 'l';
                 hit_box = 'left';
             } else if (e.which == 74) { //j
-                move = 'd';
                 hit_box = 'down';
             } else if (e.which == 75) { //k
-                move = 'u';
             } else if (e.which == 76) { //l
-                move = 'r';
                 hit_box = 'right';
             }
 
-            this.processMove(move, this.model.get('currentTime'));
+            this.processMove(hit_box, this.model.get('currentTime'));
 
-            var el = $('#'+hit_box+'-spot-arrow');
-            el.addClass(hit_box+'-hit');
-            var intervalPointer;
-            intervalPointer = setInterval(function() {
-                el.removeClass(hit_box+'-hit');
-                clearInterval(intervalPointer);
-            }, 200);
+            
         },
         processMove: function(move, currentTime) {
             if (move) {
@@ -87,6 +76,14 @@ define([
                     }
                 }, this);
             }
+
+            var el = $('#'+move+'-spot-arrow');
+            el.addClass(move+'-hit');
+            var intervalPointer;
+            intervalPointer = setInterval(function() {
+                el.removeClass(move+'-hit');
+                clearInterval(intervalPointer);
+            }, 200);
         },
         showMove: function(move, currentTime) {
             Socket.doMove(move, currentTime);
@@ -182,22 +179,6 @@ define([
 
     Game.initialize = function(user) {
 
-        var video = $('#webcam')[0];
-
-        if (navigator.getUserMedia) {
-            navigator.getUserMedia({audio: false, video: true}, function(stream) {
-                video.src = stream;
-                 this.initializeMedia();
-            }, null);
-        } else if (navigator.webkitGetUserMedia) {
-            navigator.webkitGetUserMedia({audio: true, video: true}, function(stream) {
-                video.src = window.webkitURL.createObjectURL(stream);
-                this.initializeMedia();
-            }, null);
-        } else {
-            //well, shit
-        }
-
         var AudioContext = (
             window.AudioContext ||
                 window.webkitAudioContext ||
@@ -210,6 +191,19 @@ define([
             }
             else {
                 loadSounds();
+            }
+
+            // Load our vision system from the namespace provided in vision.js
+            vision.startVision($, sensor_hit);
+        }
+
+        sensor_hit = function(r) {
+            if (r == 0) {
+                App.gameView.processMove('left', App.gameInstance.get('currentTime'));
+            } else if (r == 1) {
+                App.gameView.processMove('down', App.gameInstance.get('currentTime'));
+            } else if (r == 2) {
+                App.gameView.processMove('right', App.gameInstance.get('currentTime'));
             }
         }
 
@@ -240,7 +234,9 @@ define([
                     }
                     delay = totalDelay / (5*2);
                     //TODO: end loading
-                    initGame(delay);
+                    Socket.socket.removeListener('ping',  this);
+
+                    App.gameInstance.set('delay', delay);
                 }
             });
             var getDelay = function() {
@@ -252,10 +248,8 @@ define([
             getDelay();
         }
 
-        var initGame = function(delay) {
-            console.log('delay', delay);
+        var initGame = function() {
             var game = new Game.Model({
-                delay: delay
             });
             Socket.startGame();
             var gameView = new Game.View({
@@ -266,8 +260,11 @@ define([
                 model: user
             });
             App.gameInstance = game;
+            App.gameView = gameView;
             App.user = user;
         }
+
+        initGame();
 
         initializeMedia();
     }

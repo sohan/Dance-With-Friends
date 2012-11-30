@@ -1,8 +1,8 @@
 @import "bootstrap-less/bootstrap.less"; 
 
-@arrow_size: 80px;
-@arrow_hit_size: 110px;
-@spot_size: 110px;
+@arrow_size: 135px;
+@arrow_hit_size: 160px;
+@spot_size: 180px;
 @hit_buffer: 50px; /* How much top margin for the hit zones */
 
 html, body, #game-container, .game-container, .pane {
@@ -21,9 +21,11 @@ html, body, #game-container, .game-container, .pane {
 
 .right-pane {
     height:100%;
-    background: @blue;
 }
 
+#game-container {
+    position: relative;
+}
 
 #arrows-container {
     float: initial;
@@ -123,3 +125,41 @@ html, body, #game-container, .game-container, .pane {
 .leaderboard {
     overflow: auto;
 }
+
+#webcam {
+    position: absolute;
+    display: none;
+}
+
+#canvas-source {
+    display: none;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+}
+
+#canvas-blended {
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.arrows {
+    position: absolute;
+    z-index: 100;
+    width: 60px;
+    height: 60px;
+}
+
+#arrow0 { 
+    .arrows;
+    left: 137px; top: 300px; }
+#arrow1 { 
+    .arrows;
+    left: 284px; top: 380px; }
+#arrow2 { 
+    .arrows;
+    left: 431px; top: 300px; }
