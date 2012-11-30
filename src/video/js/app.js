@@ -170,11 +170,11 @@
     }
 
     function updateCounter() {
-        document.getElementById("hitcounter").innerHTML =
-            "<table><tr>" +
-            "<td>" + getPrevAvg(oldAvgs[0]) + "</td>" +
-            "<td>" + getPrevAvg(newAvgs[0]) + "</td>" +
-            "<td>" + getPrevAvg(outerAvgs[0]) + "</td></tr></table>";
+//        document.getElementById("hitcounter").innerHTML =
+//            "<table><tr>" +
+//            "<td>" + getPrevAvg(oldAvgs[0]) + "</td>" +
+//            "<td>" + getPrevAvg(newAvgs[0]) + "</td>" +
+//            "<td>" + getPrevAvg(outerAvgs[0]) + "</td></tr></table>";
     }
 
     function updateLastHits() {
