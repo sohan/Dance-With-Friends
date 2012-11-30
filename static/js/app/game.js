@@ -25,7 +25,7 @@ define([
             songIndex: 0 // The current index in the song stamp list
         },
         getTimeOffset: function() {
-            return new Date().getTime() - this.get('startTime');
+            return new Date().getTime() - this.get('startTime') - this.get('delay');
         },
     });
 
@@ -94,7 +94,7 @@ define([
                 model: this.exclamation
             });
             this.song = options.song || null;
-            this.song.noteOn(0);
+            this.song.noteOn(0, this.model.getTimeOffset());
         },
         detectMove: function(e) {
             var hit_box = '';
@@ -298,7 +298,7 @@ define([
             Socket.socket.on('ping', function(data){
                 responseTimes[data.num] = new Date().getTime();
                 pingCounter++;
-                if(pingCounter >= 5){
+                if(pingCounter >= 5) {
                     var totalDelay = 0;
                     for(var i = 0; i < 5; i++){
                         totalDelay += responseTimes[i] - requestTimes[i];
@@ -306,7 +306,6 @@ define([
                     delay = totalDelay / (5*2);
                     //TODO: end loading
                     Socket.socket.removeListener('ping',  this);
-
 
                     App.gameInstance.set('delay', delay);
                 }
@@ -321,23 +320,25 @@ define([
         }
 
         var initGame = function() {
-            var game = new Game.Model({
-                startTime: new Date().getTime()
-            });
             Socket.startGame();
-            var gameView = new Game.View({
-                model: game,
-                song: songBufferSource
-            });
-            var user = new UserMeta.Model();
-            var userView = new UserMeta.View({
-                model: user
-            });
-            App.gameInstance = game;
-            App.gameView = gameView;
-            App.user = user;
+            Socket.socket.on('startGame', function(data) {
+                var game = new Game.Model({
+                    startTime: new Date().getTime() - data.time
+                });
+                var gameView = new Game.View({
+                    model: game,
+                    song: songBufferSource
+                });
+                var user = new UserMeta.Model();
+                var userView = new UserMeta.View({
+                    model: user
+                });
+                App.gameInstance = game;
+                App.gameView = gameView;
+                App.user = user;
 
-            setDelay();
+                setDelay();
+            });
         }
 
         var video = $('#webcam')[0];

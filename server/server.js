@@ -63,6 +63,10 @@ io.sockets.on('connection', function (socket) {
 
             setInterval(function(){game_loop(socket)}, update_speed);
         }
+        //return the game time
+        socket.emit('startGame', function() {
+            time: new Date().getTime() - state.time_started
+        });
     });
 
     socket.on('move', function(data) {
