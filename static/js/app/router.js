@@ -10,7 +10,12 @@ define([
             '*all': 'index'
         },
         index: function() {
-            var arrow = new Arrow.Model();
+            var arrow = new Arrow.Model({
+                direction: 'l'    
+            });
+            var arrowView = new Arrow.View({
+                model: arrow
+            });
         },
     });
 

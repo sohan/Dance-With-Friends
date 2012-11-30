@@ -13,9 +13,19 @@
         <div class="span3 left-pane pane">
         </div>
         <div class="span9 right-pane pane">
+          <div id="arrows-container">
+          </div>
         </div>
       </div>
     </div>
     <script data-main="static/js/app/main" src="static/js/lib/require.min.js"></script>
+    <script type="template" id="template-arrow">
+      <div class="arrow
+        <% if (direction == 'l') { %>
+          left    
+        <% } %>
+      ">
+      </div>
+    </script>
   </body>
 </html>

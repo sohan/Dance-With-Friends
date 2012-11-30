@@ -5,23 +5,27 @@ define([
   'backbone',
   'app',
 ], function($, _, Backbone, App) {
-    console.log($, _, Backbone);
     var Arrow = App.Arrow || {};
 
     Arrow.Model = Backbone.Model.extend({
         defaults: {
             timestamp: 0.0,
-            type: '',
+            direction: '',
         },
     });
 
     Arrow.View = Backbone.View.extend({
+        el: $('#arrows-container'),
+        template: _.template($('#template-arrow').html()),
         initialize: function() {
             console.log('initialize'); 
             this.render();
         },
         render: function() {
-            console.log('render'); 
+            var dict = this.model.toJSON();
+            var html = this.template(dict);
+            console.log(html);
+            this.$el.append(html);
         },
     });
     
