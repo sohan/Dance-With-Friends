@@ -4,13 +4,18 @@ define([
   'underscore',
   'backbone',
   'app',
-], function($, _, Backbone, App) {
+  'socket',
+], function($, _, Backbone, App, socket) {
     var UserMeta = App.UserMeta || {};
 
     UserMeta.Model = Backbone.Model.extend({
         defaults: {
             score: 0.0,
-            name: undefined
+            name: undefined,
+            elapsedTime: 0.0
+        },
+        update: function() {
+
         }
     });
 
@@ -19,12 +24,16 @@ define([
         el: $('#user-meta-container'),
         initialize: function() {
             this.model.on('change', this.render, this);
+            socket.on('sync', $.proxy(this.syncUserMeta, this));
             this.render();
         },
         render: function() {
             var dict = this.model.toJSON();
             this.$el.html(this.template(dict));
-        }
+        },
+        syncUserMeta: function(data) {
+            this.model.set('elapsedTime', data.time); 
+        },
     });
 
     return UserMeta;

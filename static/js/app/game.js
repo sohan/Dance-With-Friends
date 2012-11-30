@@ -6,7 +6,8 @@ define([
   'arrow',
   'songMeta',
   'userMeta',
-], function($, _, Backbone, App, Arrow, SongMeta, UserMeta) {
+  'socket',
+], function($, _, Backbone, App, Arrow, SongMeta, UserMeta, socket) {
     var Game = App.Game || {};
 
     Game.Model = Backbone.Model.extend({
@@ -169,6 +170,7 @@ define([
 
         var game = new Game.Model({
         });
+        socket.emit('start', {});
         var gameView = new Game.View({
             model: game
         });
