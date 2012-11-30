@@ -1,5 +1,7 @@
 @import "bootstrap-less/bootstrap.less"; 
 
+@import "http://fonts.googleapis.com/css?family=Erica+One&ignore=.css";
+
 @arrow_size: 80px;
 @arrow_hit_size: 110px;
 @spot_size: 110px;
@@ -10,20 +12,23 @@ html, body, #game-container, .game-container, .pane {
     overflow:hidden;
 }
 
+#game-container {
+    position:relative;
+}
+
 .full-container {
     height: 100%;
 }
 
 .left-pane {
     height:100%;
-    background: @red;
+    background: @white;
 }
 
 .right-pane {
     height:100%;
-    background: @blue;
+    background: @white;
 }
-
 
 #arrows-container {
     float: initial;
@@ -62,6 +67,7 @@ html, body, #game-container, .game-container, .pane {
 }
 .glow {
     -webkit-transition: opacity .3s linear, all .3s linear;
+    -moz-transition: opacity .3s linear, all .3s linear;
     height: @arrow_hit_size;
     width: @arrow_hit_size;
     margin-left: -1 * @arrow_hit_size / 2;
@@ -122,4 +128,36 @@ html, body, #game-container, .game-container, .pane {
 
 .leaderboard {
     overflow: auto;
+}
+
+#exclamation {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -45px;
+    font-family: 'Erica One', cursive;
+    text-transform: uppercase;
+    font-size: 40px;
+    text-outline: 2px @black;
+    text-shadow: 0px 1px 0 rgba(0,0,0,.25);
+    z-index: 3;
+    .text {
+        opacity: 1.0;
+        .transition(opacity .5s linear);
+        &.fade {
+            opacity: 0.0;
+        }
+    }
+    &.perfect {
+        color: @yellow;
+    }
+    &.great {
+        color: @green;
+    }
+    &.good {
+        color: darken(@green, 15%);
+    }
+    &.bad {
+        color: darken(@red, 15%);
+    }
 }

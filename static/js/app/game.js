@@ -29,6 +29,47 @@ define([
         },
     });
 
+    Game.ExclamationModel = Backbone.Model.extend({
+        defaults: {
+            score: undefined
+        },
+    });
+
+    Game.ExclamationView = Backbone.View.extend({
+        el: $('#exclamation'),
+        initialize: function() {
+            this.model.on('change', this.render, this);
+            this.render();
+        },
+        render: function() {
+            var score = this.model.get('score');
+            if (!score) {
+                return;
+            }
+            var word;
+            if (score == 4) {
+                word = 'perfect';
+            }
+            else if (score == 3) {
+                word = 'great'
+            } else if (score == 2) {
+                word = 'good'
+            } else if (score == 1) {
+                word = 'bad'
+            }
+            if (word) {
+                this.$el.removeClass();
+                var div = $('<div class="text">' + word + '!</div>');
+                this.$el.html(div);
+                setInterval(function() {
+                    if (div.length)
+                        div.addClass('fade');
+                }, 500);
+                this.$el.addClass(word);
+            }
+        },
+    });
+
     Game.View = Backbone.View.extend({
         el: $('#game-container'),
         initialize: function() {
@@ -42,6 +83,11 @@ define([
                 this.model.set('bufferZoneTime', this.model.get('gameHeight')/this.model.get('velocity'));
             }, this));
             $(window).resize();
+
+            this.exclamation = new Game.ExclamationModel();
+            new Game.ExclamationView({
+                model: this.exclamation
+            });
         },
         detectMove: function(e) {
             var move = null;
@@ -115,6 +161,7 @@ define([
             }
         },
         updateScore: function(score, arrow) {
+            this.exclamation.set('score', score);
             App.user.set('score', App.user.get('score') + score * 1000);
             arrow.glow();
         },
