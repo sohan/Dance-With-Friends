@@ -27,7 +27,7 @@ define([
             songIndex: 0 // The current index in the song stamp list
         },
         getTimeOffset: function() {
-            return new Date().getTime() - this.get('startTime') - this.get('delay');
+            return new Date().getTime() - this.get('startTime')
         },
     });
 
@@ -311,7 +311,7 @@ define([
             soundManager.setup({
                 url: '/',
                 preferFlash: false,
-                onready: initGame,
+                onready: setDelay
             })
         }
 
@@ -355,8 +355,7 @@ define([
             Socket.socket.on('startGame', function(data) {
                 Game.loading_end();
                 var game = new Game.Model({
-                    startTime: new Date().getTime() - data.time,
-                    delay: delay,
+                    startTime: new Date().getTime() - data.time - delay,
                     game_type: window.game_type
                 });
                 var gameView = new Game.View({
