@@ -187,13 +187,13 @@ define([
         if (navigator.getUserMedia) {
             navigator.getUserMedia({audio: false, video: true}, function(stream) {
                 video.src = stream;
-                initialize();
-            }, webcamError);
+                 this.initializeMedia();
+            }, null);
         } else if (navigator.webkitGetUserMedia) {
             navigator.webkitGetUserMedia({audio: true, video: true}, function(stream) {
                 video.src = window.webkitURL.createObjectURL(stream);
-                initialize();
-            }, webcamError);
+                this.initializeMedia();
+            }, null);
         } else {
             //well, shit
         }
@@ -217,9 +217,9 @@ define([
             soundContext = new AudioContext();
             bufferLoader = new BufferLoader(soundContext,
                                             [
-                                                'sounds/gangnamstyle.mp3',
+                                                'static/songs/gangamstyle.mp3',
                                             ],
-                                            bootstrapGame();
+                                            bootstrapGame
                                            );
             bufferLoader.load();
         }
