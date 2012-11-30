@@ -2,9 +2,16 @@ var express = require('express')
   , http = require('http')
   , path = require('path');
 
-const fbId = '441141345973790';
-const fbSecret = 'b61f25df6461d99681c5927e1575f5a1';
-const fbCallbackAddress = 'http://localhost:8082/dance';
+var dev = false;
+if (dev) {
+    var fbId = '441141345973790';
+    var fbSecret = 'b61f25df6461d99681c5927e1575f5a1';
+} else {
+    var fbId = '449557481758969';
+    var fbSecret = '09c40457a21e66b7e9711b7e73cabb8f';
+}
+var hostname = dev ? "localhost:8082" : "ec2-184-73-4-129.compute-1.amazonaws.com"
+var fbCallbackAddress = 'http://' + hostname + '/dance';
 
 var app = express();
 var server = http.createServer(app);
@@ -17,7 +24,8 @@ ejs.close = '}}';
 var static_path = path.normalize(__dirname +'/../static');
 app.configure(function() {
     app.set('view engine', 'ejs');
-    app.use('/static', express.static(static_path));
+    if (dev)
+        app.use('/static', express.static(static_path));
     app.use(express.cookieParser('hellomoto'));
     app.use(express.session());
     app.use(auth([
@@ -126,7 +134,8 @@ app.get('/dance', function (req, res) {
             res.render('dance', {
                 fbName: details.user.name,
                 fbId: details.user.id,
-                fbPic: 'https://graph.facebook.com/' + details.user.username + '/picture'
+                fbPic: 'https://graph.facebook.com/' + details.user.username + '/picture',
+                hostname: hostname
             });
         } else {
             res.write('<html><body><h1>couldnt log in</h1></body></html>');
@@ -136,8 +145,10 @@ app.get('/dance', function (req, res) {
 });
 
 app.get('/', function(req, res, params) {
-    var filepath = path.normalize(__dirname + "/login.html");
-    res.sendfile(filepath);
+    res.render('login',{
+        hostname: hostname,
+        fbId: fbId
+    });
 });
 
 app.get('/logout', function(req, res, params) {
