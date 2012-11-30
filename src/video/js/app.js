@@ -57,6 +57,10 @@
     var bufferLoader;
     var notes = [];
 
+    var timesHit = 0;
+    var lastHits = [1000,1000,1000];
+    var prevAvgs = [0,0,0];
+
     // mirror video
     contextSource.translate(canvasSource.width, 0);
     contextSource.scale(-1, 1);
@@ -119,7 +123,7 @@
 
     function start() {
         $(canvasSource).show();
-        $(canvasBlended).show();
+        //$(canvasBlended).show();
         $("#arrows").show();
         $("#message").hide();
         $("#description").show();
@@ -130,11 +134,23 @@
         drawVideo();
         blend();
         checkAreas();
+        updateCounter();
+        updateLastHits();
         timeOut = setTimeout(update, 1000/60);
     }
 
     function drawVideo() {
         contextSource.drawImage(video, 0, 0, video.width, video.height);
+    }
+
+    function updateCounter() {
+        document.getElementById("hitcounter").innerHTML = timesHit;
+    }
+
+    function updateLastHits() {
+        for(var i = 0; i < 3; i++) {
+            lastHits[i]++;
+        }
     }
 
     function blend() {
@@ -206,13 +222,17 @@
             }
             // calculate an average between of the color values of the note area
             average = Math.round(average / (blendedData.data.length * 0.25));
-            if (average > 10) {
+            prevAvg = prevAvgs[r];
+            if (prevAvg > 10 && average < 2 && lastHits[r] > 10) {
                 // over a small limit, consider that a movement is detected
                 // play a note and show a visual feedback to the user
+                lastHits[r] = 0;
                 playSound(notes[r]);
                 notes[r].visual.style.display = "block";
                 $(notes[r].visual).fadeOut();
+                timesHit++;
             }
+            prevAvgs[r] = average;
         }
     }
 
