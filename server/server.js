@@ -13,7 +13,7 @@ var update_speed = 100; //100 ms
 
 // Server's state stuff (flags n shit)
 var state = {
-  running: false, 
+  running: false,
   time_started: 0
 };
 
@@ -35,11 +35,16 @@ io.sockets.on('connection', function (socket) {
       state.running = true;
       state.time_started
 
-      setInterval(function(){game_loop(socket)}, update_speed);     
+      setInterval(function(){game_loop(socket)}, update_speed);
     }
   });
 
 });
+
+// used for time synchronization
+io.sockets.on('ping', function(socket){
+    socket.emit('ping', {time new Date().getTime()});
+};
 
 game_loop = function(socket){
   game_state.time = new Date().getTime() - state.time_started;
