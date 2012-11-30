@@ -24,7 +24,7 @@
     var video = $('#webcam')[0];
 
     if (navigator.getUserMedia) {
-        navigator.getUserMedia({audio: true, video: true}, function(stream) {
+        navigator.getUserMedia({audio: false, video: true}, function(stream) {
             video.src = stream;
             initialize();
         }, webcamError);
