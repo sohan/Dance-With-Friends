@@ -48,8 +48,8 @@ vision.startVision = function($, hit_callback) {
     var arrowPosY = [300,400,300];
 
     if (handmode) {
-        arrowPosX = [107,284,461];
-        arrowPosY = [20,20,20];
+        arrowPosX = [68,285,501];
+        arrowPosY = [40,40,40];
     }
 
     var timeOut, lastImageData;
