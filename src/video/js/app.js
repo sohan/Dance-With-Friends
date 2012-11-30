@@ -283,7 +283,7 @@
             outerAvgs[r].shift();
             outerAvg = getPrevAvg(outerAvgs[r]);
             if (prevAvg > 10 && average < 10 && lastHits[r] > 5 &&
-                outerAvg < 5) {
+                outerAvg < 10) {
                 // over a small limit, consider that a movement is detected
                 // play a note and show a visual feedback to the user
                 lastHits[r] = 0;
