@@ -61,7 +61,7 @@
     var lastHits = [1000,1000,1000];
     var oldAvgs = [[0],[0],[0]];
     var newAvgs = [[0],[0],[0]];
-    var outerAvgs = [[0,0,0],[0,0,0],[0,0,0]];
+    var outerAvgs = [[0],[0],[0]];
     var repeatFrame = false;
 
     // mirror video
@@ -282,7 +282,7 @@
             outerAvgs[r].push(maxAvgOut);
             outerAvgs[r].shift();
             outerAvg = getPrevAvg(outerAvgs[r]);
-            if (prevAvg > 10 && average < 2 && lastHits[r] > 5 &&
+            if (prevAvg > 10 && average < 10 && lastHits[r] > 5 &&
                 outerAvg < 5) {
                 // over a small limit, consider that a movement is detected
                 // play a note and show a visual feedback to the user
