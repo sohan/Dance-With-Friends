@@ -24,7 +24,7 @@
     var video = $('#webcam')[0];
 
     if (navigator.getUserMedia) {
-        navigator.getUserMedia({audio: true, video: true}, function(stream) {
+        navigator.getUserMedia({audio: false, video: true}, function(stream) {
             video.src = stream;
             initialize();
         }, webcamError);
@@ -43,7 +43,8 @@
             null
     );
 
-    var notesPos = [0, 82, 159, 238];
+    var arrowPosX = [150,300,450];
+    var arrowPosY = [350,420,350];
 
     var timeOut, lastImageData;
     var canvasSource = $("#canvas-source")[0];
@@ -55,6 +56,11 @@
     var soundContext;
     var bufferLoader;
     var notes = [];
+
+    var timesHit = 0;
+    var lastHits = [1000,1000,1000];
+    var oldAvgs = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
+    var newAvgs = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
 
     // mirror video
     contextSource.translate(canvasSource.width, 0);
@@ -78,7 +84,6 @@
                                             'sounds/note1.mp3',
                                             'sounds/note2.mp3',
                                             'sounds/note3.mp3',
-                                            'sounds/note4.mp3',
                                         ],
                                         finishedLoading
                                        );
@@ -86,7 +91,7 @@
     }
 
     function finishedLoading(bufferList) {
-        for (var i=0; i<4; i++) {
+        for (var i=0; i<3; i++) {
             var source = soundContext.createBufferSource();
             source.buffer = bufferList[i];
             source.connect(soundContext.destination);
@@ -95,7 +100,8 @@
                 ready: true,
                 visual: $("#arrow" + i)[0]
             };
-            note.area = {x:notesPos[i], y:0, width:note.visual.width, height:44};
+            note.area = {x:arrowPosX[i], y:arrowPosY[i],
+                         width:note.visual.width, height:44};
             notes.push(note);
         }
         start();
@@ -118,7 +124,7 @@
 
     function start() {
         $(canvasSource).show();
-        $(canvasBlended).show();
+        //$(canvasBlended).show();
         $("#arrows").show();
         $("#message").hide();
         $("#description").show();
@@ -129,11 +135,24 @@
         drawVideo();
         blend();
         checkAreas();
+        updateCounter();
+        updateLastHits();
         timeOut = setTimeout(update, 1000/60);
     }
 
     function drawVideo() {
         contextSource.drawImage(video, 0, 0, video.width, video.height);
+    }
+
+    function updateCounter() {
+        document.getElementById("hitcounter").innerHTML =
+            getPrevAvg(oldAvgs[0]) + " " + getPrevAvg(newAvgs[0]);
+    }
+
+    function updateLastHits() {
+        for(var i = 0; i < 3; i++) {
+            lastHits[i]++;
+        }
     }
 
     function blend() {
@@ -190,9 +209,17 @@
         }
     }
 
+    function getPrevAvg(l) {
+        var s = 0;
+        for (var i = 0; i < 5; i++) {
+            s += l[i];
+        }
+        return s / 5;
+    }
+
     function checkAreas() {
         // loop over the note areas
-        for (var r=0; r<4; ++r) {
+        for (var r=0; r<3; ++r) {
             // get the pixels in a note area from the blended image
             var blendedData = contextBlended.getImageData(notes[r].area.x, notes[r].area.y, notes[r].area.width, notes[r].area.height);
             var i = 0;
@@ -205,15 +232,21 @@
             }
             // calculate an average between of the color values of the note area
             average = Math.round(average / (blendedData.data.length * 0.25));
-            if (average > 10) {
+            newAvgs[r].push(average);
+            var o = newAvgs[r].shift();
+            oldAvgs[r].push(o);
+            oldAvgs[r].shift();
+            average = getPrevAvg(newAvgs[r]);
+            prevAvg = getPrevAvg(oldAvgs[r]);;
+            if (prevAvg > 10 && average < 2 && lastHits[r] > 10) {
                 // over a small limit, consider that a movement is detected
                 // play a note and show a visual feedback to the user
+                lastHits[r] = 0;
                 playSound(notes[r]);
                 notes[r].visual.style.display = "block";
                 $(notes[r].visual).fadeOut();
+                timesHit++;
             }
         }
     }
-
-
 })();
