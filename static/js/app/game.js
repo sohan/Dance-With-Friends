@@ -7,6 +7,7 @@ define([
   'songMeta',
   'userMeta',
   'socket',
+  'bufferloader',
 ], function($, _, Backbone, App, Arrow, SongMeta, UserMeta, Socket) {
     var Game = App.Game || {};
 
@@ -162,6 +163,48 @@ define([
 
     Game.initialize = function(user) {
 
+        var video = $('#webcam')[0];
+
+        if (navigator.getUserMedia) {
+            navigator.getUserMedia({audio: false, video: true}, function(stream) {
+                video.src = stream;
+                initialize();
+            }, webcamError);
+        } else if (navigator.webkitGetUserMedia) {
+            navigator.webkitGetUserMedia({audio: true, video: true}, function(stream) {
+                video.src = window.webkitURL.createObjectURL(stream);
+                initialize();
+            }, webcamError);
+        } else {
+            //well, shit
+        }
+
+        var AudioContext = (
+            window.AudioContext ||
+                window.webkitAudioContext ||
+                null
+        );
+
+        initializeMedia = function() {
+            if (!AudioContext) {
+                alert("AudioContext not supported!");
+            }
+            else {
+                loadSounds();
+            }
+        }
+
+        loadSounds = function() {
+            soundContext = new AudioContext();
+            bufferLoader = new BufferLoader(soundContext,
+                                            [
+                                                'sounds/gangnamstyle.mp3',
+                                            ],
+                                            bootstrapGame();
+                                           );
+            bufferLoader.load();
+        }
+
         var bootstrapGame = function() {
             var pingCounter = 0;
             var delay = -1;
@@ -206,7 +249,7 @@ define([
             App.user = user;
         }
 
-        bootstrapGame();
+        initializeMedia();
     }
 
     return Game;
