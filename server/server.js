@@ -10,7 +10,8 @@ if (dev) {
     var fbId = '449557481758969';
     var fbSecret = '09c40457a21e66b7e9711b7e73cabb8f';
 }
-var hostname = dev ? "localhost:8082" : "ec2-184-73-4-129.compute-1.amazonaws.com"
+var hostname = dev ? "localhost:8082" : "ec2-184-73-4-129.compute-1.amazonaws.com";
+var socketPort = dev ? "" : ":8080";
 var fbCallbackAddress = 'http://' + hostname + '/dance';
 
 var app = express();
@@ -135,7 +136,8 @@ app.get('/dance', function (req, res) {
                 fbName: details.user.name,
                 fbId: details.user.id,
                 fbPic: 'https://graph.facebook.com/' + details.user.username + '/picture',
-                hostname: hostname
+                hostname: hostname,
+                socketPort: socketPort
             });
         } else {
             res.write('<html><body><h1>couldnt log in</h1></body></html>');
