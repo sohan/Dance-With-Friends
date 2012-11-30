@@ -35,6 +35,24 @@ define([
         },
     });
 
+    Game.scoreToWord = function(score) {
+        if (!score) {
+            return;
+        }
+        var word;
+        if (score == 4) {
+            word = 'perfect';
+        }
+        else if (score == 3) {
+            word = 'great'
+        } else if (score == 2) {
+            word = 'good'
+        } else if (score == 1) {
+            word = 'bad'
+        }
+        return word;
+    };
+
     Game.ExclamationView = Backbone.View.extend({
         el: $('#exclamation'),
         initialize: function() {
@@ -43,20 +61,7 @@ define([
         },
         render: function() {
             var score = this.model.get('score');
-            if (!score) {
-                return;
-            }
-            var word;
-            if (score == 4) {
-                word = 'perfect';
-            }
-            else if (score == 3) {
-                word = 'great'
-            } else if (score == 2) {
-                word = 'good'
-            } else if (score == 1) {
-                word = 'bad'
-            }
+            var word = Game.scoreToWord(score);
             if (word) {
                 this.$el.removeClass();
                 var div = $('<div class="text">' + word + '!</div>');
@@ -127,8 +132,7 @@ define([
 
                         var score = this.scoreMove(timeDiff);
                         if (score > 0) {
-                            console.log(timeDiff);
-                            this.updateScore(score, arrow);
+                            this.updateScore(score, arrow, true);
                         }
 
 
@@ -162,13 +166,20 @@ define([
                 return 0;
             }
         },
-        updateScore: function(score, arrow) {
-            this.exclamation.set('score', score);
+        updateScore: function(score, arrow, shouldGlow) {
+            this.exclamation.set({
+                score: score,
+                cb: new Date().getTime()
+            });
             App.user.set('score', App.user.get('score') + score * 1000);
-            arrow.glow();
+            var scoreWord = Game.scoreToWord(score);
+            App.user.set(scoreWord, App.user.get(scoreWord) + 1);
+            if (shouldGlow)
+                arrow.glow();
         },
         removeArrows: function(forRemoval) {
             _.each(forRemoval, function(arrow) {
+                this.updateScore(1, arrow, true);
                 delete this.arrows[_.indexOf(this.arrows, arrow)];
             }, this);
         },
@@ -297,7 +308,6 @@ define([
         }
 
         var initGame = function(delay) {
-            console.log('delay', delay);
             var game = new Game.Model({
                 delay: delay,
                 startTime: new Date().getTime()

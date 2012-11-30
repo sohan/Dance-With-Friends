@@ -14,6 +14,10 @@ define([
             name: undefined,
             elapsedTime: 0.0,
             players: [],
+            perfect: 0,
+            great: 0,
+            good: 0,
+            bad: 0
         },
         initialize: function() {
             this.on('change:score', this.sync, this);
