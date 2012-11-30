@@ -121,7 +121,7 @@ init_player = function(id) {
 
         ],
         offset: 0,
-        name: id,
+        name: 'Anonymous',
         pic: '',
     };
 };
