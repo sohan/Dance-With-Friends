@@ -61,6 +61,7 @@
     var lastHits = [1000,1000,1000];
     var oldAvgs = [[0,0,0],[0,0,0],[0,0,0]];
     var newAvgs = [[0,0,0],[0,0,0],[0,0,0]];
+    var outerAvgs = [[0,0,0],[0,0,0],[0,0,0]];
 
     // mirror video
     contextSource.translate(canvasSource.width, 0);
@@ -124,7 +125,7 @@
 
     function start() {
         $(canvasSource).show();
-        //$(canvasBlended).show();
+        $(canvasBlended).show();
         $("#arrows").show();
         $("#message").hide();
         $("#description").show();
@@ -146,8 +147,10 @@
 
     function updateCounter() {
         document.getElementById("hitcounter").innerHTML =
-            getPrevAvg(oldAvgs[0]) + " " +
-            getPrevAvg(newAvgs[0]);
+            "<table><tr>" +
+            "<td>" + getPrevAvg(oldAvgs[0]) + "</td>" +
+            "<td>" + getPrevAvg(newAvgs[0]) + "</td>" +
+            "<td>" + getPrevAvg(outerAvgs[0]) + "</td></tr></table>";
     }
 
     function updateLastHits() {
@@ -247,7 +250,7 @@
             oldAvgs[r].shift();
             average = getPrevAvg(newAvgs[r]);
             prevAvg = getPrevAvg(oldAvgs[r]);
-            var movementOutside = false;
+            var maxAvgOut = 0;
             var averageOut = 0;
             for (var j = 0; j < 4; j++) {
                 i = 0;
@@ -259,13 +262,16 @@
                     ++i;
                 }
                 // calculate an average between of the color values of the note area
-                averageOut = Math.round(average / (outs[j].data.length * 0.25));
-                if (averageOut > 10) {
-                    movementOutside = true;
-                    break;
+                averageOut = Math.round(averageOut / (outs[j].data.length * 0.25));
+                if (averageOut > maxAvgOut) {
+                    maxAvgOut = averageOut;
                 }
             }
-            if (prevAvg > 10 && average < 2 && lastHits[r] > 10 && !movementOutside) {
+            outerAvgs[r].push(maxAvgOut);
+            outerAvgs[r].shift();
+            outerAvg = getPrevAvg(outerAvgs[r]);
+            if (prevAvg > 10 && average < 2 && lastHits[r] > 10 &&
+                outerAvg < 5) {
                 // over a small limit, consider that a movement is detected
                 // play a note and show a visual feedback to the user
                 lastHits[r] = 0;
