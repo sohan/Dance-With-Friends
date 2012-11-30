@@ -42,8 +42,15 @@
             null
     );
 
+    var handmode = true;
+
     var arrowPosX = [137,284,431];
     var arrowPosY = [300,380,300];
+
+    if (handmode) {
+        arrowPosX = [107,284,461];
+        arrowPosY = [100,50,100];
+    }
 
     var timeOut, lastImageData;
     var canvasSource = $("#canvas-source")[0];
@@ -66,9 +73,35 @@
     var newAvgs = [];
     var outerAvgs = [];
     var repeatFrame = false;
+
     var upperMotionThreshold = 20;
     var lowerMotionThreshold = 20;
     var outerMotionThreshold = 15;
+
+    if (handmode) {
+        upperMotionThreshold = -1;
+        lowerMotionThreshold = 10;
+        outerMotionThreshold = 10000;
+
+        var arr = document.getElementById("arrow0");
+        arr.style.left = 107 + "px";
+        arr.style.top = 100 + "px";
+        arr = document.getElementById("arrow0b");
+        arr.style.left = 107 + "px";
+        arr.style.top = 100 + "px";
+
+        arr = document.getElementById("arrow1");
+        arr.style.top = 50 + "px";
+        arr = document.getElementById("arrow1b");
+        arr.style.top = 50 + "px";
+
+        arr = document.getElementById("arrow2");
+        arr.style.left = 461 + "px";
+        arr.style.top = 100 + "px";
+        arr = document.getElementById("arrow2b");
+        arr.style.left = 461 + "px";
+        arr.style.top = 100 + "px";
+    }
 
     // mirror video
     contextSource.translate(canvasSource.width, 0);
@@ -322,10 +355,17 @@
             outerAvgs[r].push(maxAvgOut);
             outerAvgs[r].shift();
             outerAvg = getPrevAvg(outerAvgs[r]);
-            if (prevAvg > upperMotionThreshold &&
-                average < lowerMotionThreshold &&
-                lastHits[r] > 5 &&
-                outerAvg < outerMotionThreshold) {
+            successPred = false;
+            if (handmode) {
+                successPred = average > lowerMotionThreshold &&
+                    lastHits[r] > 10;
+            } else {
+                successPred = prevAvg > upperMotionThreshold &&
+                    average < lowerMotionThreshold &&
+                    lastHits[r] > 5 &&
+                    outerAvg < outerMotionThreshold;
+            }
+            if (successPred) {
                 // over a small limit, consider that a movement is detected
                 // play a note and show a visual feedback to the user
                 lastHits[r] = 0;
