@@ -19,7 +19,7 @@ vision.startVision = function($, hit_callback) {
 
     var video = $('#webcam')[0];
 
-    if (navigator.getUserMedia) {
+    /*if (navigator.getUserMedia) {
         navigator.getUserMedia({audio: false, video: true}, function(stream) {
             video.src = stream;
             initialize();
@@ -32,12 +32,15 @@ vision.startVision = function($, hit_callback) {
     } else {
         //video.src = 'somevideo.webm'; // fallback.
     }
-
+*/
     var AudioContext = (
         window.AudioContext ||
             window.webkitAudioContext ||
             null
     );
+
+
+    initialize();
 
     var arrowPosX = [107,284,461];
     var arrowPosY = [300,400,300];
@@ -145,8 +148,8 @@ vision.startVision = function($, hit_callback) {
     }
 
     function start() {
-        //$(canvasSource).show();
-        $(canvasBlended).show();
+        $(canvasSource).show();
+        //$(canvasBlended).show();
         $("#arrows").show();
         $("#message").hide();
         $("#description").show();

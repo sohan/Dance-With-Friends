@@ -13,7 +13,7 @@ define([
 
     Game.Model = Backbone.Model.extend({
         defaults: {
-            startTime: new Date().getTime(),
+            startTime: undefined,
             currentTime: undefined,
             players: {}, //id to player state
             arrows: {},
@@ -29,12 +29,53 @@ define([
         },
     });
 
+    Game.ExclamationModel = Backbone.Model.extend({
+        defaults: {
+            score: undefined
+        },
+    });
+
+    Game.ExclamationView = Backbone.View.extend({
+        el: $('#exclamation'),
+        initialize: function() {
+            this.model.on('change', this.render, this);
+            this.render();
+        },
+        render: function() {
+            var score = this.model.get('score');
+            if (!score) {
+                return;
+            }
+            var word;
+            if (score == 4) {
+                word = 'perfect';
+            }
+            else if (score == 3) {
+                word = 'great'
+            } else if (score == 2) {
+                word = 'good'
+            } else if (score == 1) {
+                word = 'bad'
+            }
+            if (word) {
+                this.$el.removeClass();
+                var div = $('<div class="text">' + word + '!</div>');
+                this.$el.html(div);
+                setInterval(function() {
+                    if (div.length)
+                        div.addClass('fade');
+                }, 500);
+                this.$el.addClass(word);
+            }
+        },
+    });
+
     Game.View = Backbone.View.extend({
         el: $('#game-container'),
-        initialize: function() {
+        initialize: function(options) {
             this.interval = setInterval($.proxy(this.runGameLoop, this), 1000 / this.model.get('gameFPS'));
             $(document).on('keydown', $.proxy(this.detectMove, this));
-            this.arrows = [];            
+            this.arrows = [];
 
             $(window).resize($.proxy(function() {
                 this.model.set('gameHeight', $(this.el).height());
@@ -42,6 +83,13 @@ define([
                 this.model.set('bufferZoneTime', this.model.get('gameHeight')/this.model.get('velocity'));
             }, this));
             $(window).resize();
+
+            this.exclamation = new Game.ExclamationModel();
+            new Game.ExclamationView({
+                model: this.exclamation
+            });
+            this.song = options.song || null;
+            this.song.noteOn(0);
         },
         detectMove: function(e) {
             var hit_box = '';
@@ -72,7 +120,7 @@ define([
                             this.updateScore(score, arrow);
                         }
 
-                       
+
                     }
                 }, this);
             }
@@ -86,7 +134,7 @@ define([
             }, 200);
         },
         showMove: function(move, currentTime) {
-            Socket.doMove(move, currentTime);
+            Socket.doMove(move, currentTime + this.model.get('delay'));
         },
         scoreMove: function(timeDiff) {
             //time diff is in milliseconds
@@ -98,7 +146,7 @@ define([
              * 3: awesome
              * 4: perfect
              * */
-            
+
             if (timeDiff < 50) {
                 return 4;
             } else if (timeDiff < 100) {
@@ -112,6 +160,7 @@ define([
             }
         },
         updateScore: function(score, arrow) {
+            this.exclamation.set('score', score);
             App.user.set('score', App.user.get('score') + score * 1000);
             arrow.glow();
         },
@@ -133,7 +182,7 @@ define([
             }, this);
             this.removeArrows(forRemoval);
 
-            
+
         },
         addNewArrows: function(currentTime) {
             // Add arrows within the timestamp buffer
@@ -179,22 +228,24 @@ define([
 
     Game.initialize = function(user) {
 
+
+        var soundContext;
+        var songBufferSource;
         var AudioContext = (
             window.AudioContext ||
                 window.webkitAudioContext ||
                 null
         );
 
-        initializeMedia = function() {
+        var initializeMedia = function() {
             if (!AudioContext) {
                 alert("AudioContext not supported!");
             }
             else {
-                loadSounds();
+                loadSongs();
             }
 
-            // Load our vision system from the namespace provided in vision.js
-            vision.startVision($, sensor_hit);
+            
         }
 
         sensor_hit = function(r) {
@@ -207,18 +258,27 @@ define([
             }
         }
 
-        loadSounds = function() {
+        var loadSongs = function() {
             soundContext = new AudioContext();
             bufferLoader = new BufferLoader(soundContext,
                                             [
                                                 'static/songs/gangamstyle.mp3',
                                             ],
-                                            bootstrapGame
+                                            createSongBufferSource
                                            );
             bufferLoader.load();
         }
 
-        var bootstrapGame = function() {
+        var createSongBufferSource = function(bufferList) {
+            songBufferSource = soundContext.createBufferSource();
+            songBufferSource.buffer = bufferList[0];
+            songBufferSource.connect(soundContext.destination);
+            initGame();
+            // Load our vision system from the namespace provided in vision.js
+            vision.startVision($, sensor_hit);
+        }
+
+        var setDelay = function() {
             var pingCounter = 0;
             var delay = -1;
             var requestTimes = [0,0,0,0,0]
@@ -236,6 +296,7 @@ define([
                     //TODO: end loading
                     Socket.socket.removeListener('ping',  this);
 
+
                     App.gameInstance.set('delay', delay);
                 }
             });
@@ -250,10 +311,12 @@ define([
 
         var initGame = function() {
             var game = new Game.Model({
+                startTime: new Date().getTime()
             });
             Socket.startGame();
             var gameView = new Game.View({
-                model: game
+                model: game,
+                song: songBufferSource
             });
             var user = new UserMeta.Model();
             var userView = new UserMeta.View({
@@ -262,11 +325,25 @@ define([
             App.gameInstance = game;
             App.gameView = gameView;
             App.user = user;
+
+            setDelay();
         }
 
-        initGame();
+        var video = $('#webcam')[0];
+        if (navigator.getUserMedia) {
+            navigator.getUserMedia({audio: false, video: true}, function(stream) {
+                video.src = stream;
+                 initializeMedia();
+            }, null);
+        } else if (navigator.webkitGetUserMedia) {
+            navigator.webkitGetUserMedia({audio: true, video: true}, function(stream) {
+                video.src = window.webkitURL.createObjectURL(stream);
+                initializeMedia();
+            }, null);
+        } else {
+            //well, shit
+        }
 
-        initializeMedia();
     }
 
     return Game;

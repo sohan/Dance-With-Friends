@@ -5,7 +5,7 @@ define([
     Songs['Gangam Style'] = [
       {'timestamp': 3000, 'type': 'l'}
       ];
-    Songs['Gangam Style 2'] = [
+    Songs['Gangam Style'] = [
       {'timestamp': 3000, 'type': 'l'},
       {'timestamp': 7899, 'type': 'l'},
       {'timestamp': 8341, 'type': 'r'},
