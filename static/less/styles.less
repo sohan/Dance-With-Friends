@@ -1,7 +1,11 @@
 @import "bootstrap-less/bootstrap.less"; 
-html, body, .game-container, .pane {
+html, body, #game-container, .game-container, .pane {
     height: 100%;
     overflow:hidden;
+}
+
+.full-container {
+    height: 100%;
 }
 
 .left-pane {
@@ -14,11 +18,32 @@ html, body, .game-container, .pane {
     background: @blue;
 }
 
+
+#arrows-container {
+    height: 100%;
+}
+
+.arrow-lane {
+    position: relative;
+    height: 100%;
+}
+
 .arrow {
+    position: absolute;
+    bottom: 0px;
     height: 40px;
     width: 40px;
 
     &.left {
         background: @green;
+    }
+    &.right {
+        background: @black;
+    }
+    &.up {
+        background: @purple;
+    }
+    &.down {
+        background: @orange;
     }
 }
