@@ -43,7 +43,8 @@
             null
     );
 
-    var notesPos = [0, 82, 159, 238];
+    var arrowPosX = [150,300,450];
+    var arrowPosY = [350,420,350];
 
     var timeOut, lastImageData;
     var canvasSource = $("#canvas-source")[0];
@@ -78,7 +79,6 @@
                                             'sounds/note1.mp3',
                                             'sounds/note2.mp3',
                                             'sounds/note3.mp3',
-                                            'sounds/note4.mp3',
                                         ],
                                         finishedLoading
                                        );
@@ -86,7 +86,7 @@
     }
 
     function finishedLoading(bufferList) {
-        for (var i=0; i<4; i++) {
+        for (var i=0; i<3; i++) {
             var source = soundContext.createBufferSource();
             source.buffer = bufferList[i];
             source.connect(soundContext.destination);
@@ -95,7 +95,8 @@
                 ready: true,
                 visual: $("#arrow" + i)[0]
             };
-            note.area = {x:notesPos[i], y:0, width:note.visual.width, height:44};
+            note.area = {x:arrowPosX[i], y:arrowPosY[i],
+                         width:note.visual.width, height:44};
             notes.push(note);
         }
         start();
@@ -192,7 +193,7 @@
 
     function checkAreas() {
         // loop over the note areas
-        for (var r=0; r<4; ++r) {
+        for (var r=0; r<3; ++r) {
             // get the pixels in a note area from the blended image
             var blendedData = contextBlended.getImageData(notes[r].area.x, notes[r].area.y, notes[r].area.width, notes[r].area.height);
             var i = 0;

@@ -62,11 +62,9 @@ video, #info, #description {
 #arrows #front img {
 	display: none;
 }
-#arrows #arrow0b { left: 0px; }
-#arrows #arrow1b { left: 82px; }
-#arrows #arrow2b { left: 159px; }
-#arrows #arrow3b { left: 238px; }
-#arrows #arrow0 { left: 0px; }
-#arrows #arrow1 { left: 82px; }
-#arrows #arrow2 { left: 159px; }
-#arrows #arrow3 { left: 238px; }
+#arrows #arrow0b { left: 150px; top: 350px; }
+#arrows #arrow1b { left: 300px; top: 420px; }
+#arrows #arrow2b { left: 450px; top: 350px; }
+#arrows #arrow0 { left: 150px; top: 350px; }
+#arrows #arrow1 { left: 300px; top: 420px; }
+#arrows #arrow2 { left: 450px; top: 350px; }
