@@ -111,7 +111,8 @@ define([
 
             
         },
-        processMove: function(move, currentTime) {
+        processMove: function(move_string, currentTime) {
+            move = move_string.charAt(0);
             if (move) {
                 this.showMove(move, currentTime);
                 _.each(this.arrows, function(arrow) {
@@ -129,11 +130,11 @@ define([
                 }, this);
             }
 
-            var el = $('#'+move+'-spot-arrow');
-            el.addClass(move+'-hit');
+            var el = $('#'+move_string+'-spot-arrow');
+            el.addClass(move_string+'-hit');
             var intervalPointer;
             intervalPointer = setInterval(function() {
-                el.removeClass(move+'-hit');
+                el.removeClass(move_string+'-hit');
                 clearInterval(intervalPointer);
             }, 200);
         },

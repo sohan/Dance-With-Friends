@@ -8,7 +8,7 @@ song = open('rename_song', 'w')
 
 
 
-filename = r'C:\Users\LocalUser\Music\gungam.mp3'
+filename = '../static/songs/gangamstyle.mp3'
 mp3 = mp3play.load(filename)
 
 mp3.play()
