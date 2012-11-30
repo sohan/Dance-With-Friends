@@ -3,19 +3,14 @@ define([
   'underscore',
   'backbone',
   'app',
-  'arrow'
-], function($, _, Backbone, App, Arrow) {
+  'game'
+], function($, _, Backbone, App, Game) {
     var Router = Backbone.Router.extend({
         routes: {
             '*all': 'index'
         },
         index: function() {
-            var arrow = new Arrow.Model({
-                direction: 'l'    
-            });
-            var arrowView = new Arrow.View({
-                model: arrow
-            });
+            Game.initialize();
         },
     });
 
