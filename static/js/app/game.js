@@ -106,6 +106,10 @@ define([
                 $('#arrow0').css('top', this.model.get('gameHeight') * .697 - $('#arrow0').height()/2)
                 $('#arrow1').css('top', this.model.get('gameHeight') * .906 - $('#arrow1').height()/2)
                 $('#arrow2').css('top', this.model.get('gameHeight') * .697 - $('#arrow2').height()/2)
+            } else {
+                $('#arrow0').hide(); 
+                $('#arrow1').hide();
+                $('#arrow2').hide();
             }
         },
         detectMove: function(e) {
@@ -336,7 +340,7 @@ define([
             Socket.startGame();
             Socket.socket.on('startGame', function(data) {
                 var game = new Game.Model({
-                    startTime: 0//new Date().getTime() - data.time
+                    startTime: new Date().getTime() - data.time
                 });
                 var gameView = new Game.View({
                     model: game,
