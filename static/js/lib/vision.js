@@ -44,8 +44,8 @@ vision.startVision = function($, hit_callback) {
 
     var handmode = false;
 
-    var arrowPosX = [107,284,461];
-    var arrowPosY = [300,400,300];
+    var arrowPosX = [137,284,431];
+    var arrowPosY = [300,380,300];
 
     if (handmode) {
         arrowPosX = [68,285,501];
