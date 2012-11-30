@@ -68,7 +68,7 @@
     var repeatFrame = false;
     var upperMotionThreshold = 20;
     var lowerMotionThreshold = 15;
-    var outerMotionThreshold = 10;
+    var outerMotionThreshold = 15;
 
     // mirror video
     contextSource.translate(canvasSource.width, 0);
