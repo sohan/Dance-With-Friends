@@ -8,6 +8,7 @@ define([
   'userMeta',
   'socket',
   'bufferloader',
+  'soundmanager2',
 ], function($, _, Backbone, App, Arrow, SongMeta, UserMeta, Socket) {
     var Game = App.Game || {};
 
@@ -100,8 +101,12 @@ define([
             new Game.ExclamationView({
                 model: this.exclamation
             });
-            this.song = options.song || null;
-            this.song.noteOn(0, this.model.getTimeOffset());
+
+            soundManager.createSound({
+                 id:'gangamstyle',
+                 url:'../static/songs/gangamstyle.mp3'
+            });
+            soundManager.play('gangamstyle');
 
             // If we're using feet, position markers:
             if (this.model.get('gameType')){
@@ -112,7 +117,7 @@ define([
                 $('#arrow1').css('top', this.model.get('gameHeight') * .906 - $('#arrow1').height()/2)
                 $('#arrow2').css('top', this.model.get('gameHeight') * .697 - $('#arrow2').height()/2)
             } else {
-                $('#arrow0').hide(); 
+                $('#arrow0').hide();
                 $('#arrow1').hide();
                 $('#arrow2').hide();
             }
@@ -281,26 +286,6 @@ define([
 
     Game.initialize = function(user) {
 
-
-        var soundContext;
-        var songBufferSource;
-        var AudioContext = (
-            window.AudioContext ||
-                window.webkitAudioContext ||
-                null
-        );
-
-        var initializeMedia = function() {
-            if (!AudioContext) {
-                alert("AudioContext not supported!");
-            }
-            else {
-                loadSongs();
-            }
-
-
-        }
-
         sensor_hit = function(r) {
             if (r == 0) {
                 App.gameView.processMove('left', App.gameInstance.get('currentTime'));
@@ -311,24 +296,12 @@ define([
             }
         }
 
-        var loadSongs = function() {
-            soundContext = new AudioContext();
-            bufferLoader = new BufferLoader(soundContext,
-                                            [
-                                                'static/songs/gangamstyle.mp3',
-                                            ],
-                                            createSongBufferSource
-                                           );
-            bufferLoader.load();
-        }
-
-        var createSongBufferSource = function(bufferList) {
-            songBufferSource = soundContext.createBufferSource();
-            songBufferSource.buffer = bufferList[0];
-            songBufferSource.connect(soundContext.destination);
-            initGame();
-            // Load our vision system from the namespace provided in vision.js
-
+        var loadSoundManager = function() {
+            soundManager.setup({
+                url: '/',
+                preferFlash: false,
+                onready: initGame,
+            })
         }
 
         var setDelay = function() {
@@ -369,7 +342,6 @@ define([
                 });
                 var gameView = new Game.View({
                     model: game,
-                    song: songBufferSource
                 });
                 var user = new UserMeta.Model();
                 var userView = new UserMeta.View({
@@ -390,12 +362,12 @@ define([
         if (navigator.getUserMedia) {
             navigator.getUserMedia({audio: false, video: true}, function(stream) {
                 video.src = stream;
-                 initializeMedia();
+                 loadSoundManager();
             }, null);
         } else if (navigator.webkitGetUserMedia) {
             navigator.webkitGetUserMedia({audio: true, video: true}, function(stream) {
                 video.src = window.webkitURL.createObjectURL(stream);
-                initializeMedia();
+                loadSoundManager();
             }, null);
         } else {
             //well, shit
