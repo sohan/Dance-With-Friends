@@ -34,7 +34,7 @@ define([
         initialize: function() {
             this.interval = setInterval($.proxy(this.runGameLoop, this), 1000 / this.model.get('gameFPS'));
             $(document).on('keydown', $.proxy(this.detectMove, this));
-            this.arrows = [];            
+            this.arrows = [];
 
             $(window).resize($.proxy(function() {
                 this.model.set('gameHeight', $(this.el).height());
@@ -42,6 +42,7 @@ define([
                 this.model.set('bufferZoneTime', this.model.get('gameHeight')/this.model.get('velocity'));
             }, this));
             $(window).resize();
+            song.noteOn(0);
         },
         detectMove: function(e) {
             var move = null;
@@ -83,7 +84,7 @@ define([
                             this.updateScore(score, arrow);
                         }
 
-                       
+
                     }
                 }, this);
             }
@@ -101,7 +102,7 @@ define([
              * 3: awesome
              * 4: perfect
              * */
-            
+
             if (timeDiff < 50) {
                 return 4;
             } else if (timeDiff < 100) {
@@ -136,7 +137,7 @@ define([
             }, this);
             this.removeArrows(forRemoval);
 
-            
+
         },
         addNewArrows: function(currentTime) {
             // Add arrows within the timestamp buffer
@@ -183,6 +184,8 @@ define([
     Game.initialize = function(user) {
 
         var video = $('#webcam')[0];
+        var soundContext();
+        var songBufferSource;
 
         if (navigator.getUserMedia) {
             navigator.getUserMedia({audio: false, video: true}, function(stream) {
@@ -204,24 +207,31 @@ define([
                 null
         );
 
-        initializeMedia = function() {
+        var initializeMedia = function() {
             if (!AudioContext) {
                 alert("AudioContext not supported!");
             }
             else {
-                loadSounds();
+                loadSongs();
             }
         }
 
-        loadSounds = function() {
+        var loadSongs = function() {
             soundContext = new AudioContext();
             bufferLoader = new BufferLoader(soundContext,
                                             [
                                                 'static/songs/gangamstyle.mp3',
                                             ],
-                                            bootstrapGame
+                                            createSongBufferSource
                                            );
             bufferLoader.load();
+        }
+
+        var createSongBufferSource = function(bufferList) {
+            songBufferSource = soundContext.createBufferSource();
+            songBufferSource.buffer = bufferList[0];
+            songBufferSource.connect(soundContext.destination);
+            bootstrapGame();
         }
 
         var bootstrapGame = function() {
@@ -259,7 +269,8 @@ define([
             });
             Socket.startGame();
             var gameView = new Game.View({
-                model: game
+                model: game,
+                song: songBufferSource
             });
             var user = new UserMeta.Model();
             var userView = new UserMeta.View({
