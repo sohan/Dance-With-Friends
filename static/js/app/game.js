@@ -7,7 +7,7 @@ define([
   'songMeta',
   'userMeta',
   'socket',
-], function($, _, Backbone, App, Arrow, SongMeta, UserMeta, socket) {
+], function($, _, Backbone, App, Arrow, SongMeta, UserMeta, Socket) {
     var Game = App.Game || {};
 
     Game.Model = Backbone.Model.extend({
@@ -57,12 +57,10 @@ define([
         },
         processMove: function(move, currentTime) {
             if (move) {
-                this.showMove(move);
+                this.showMove(move, currentTime);
                 _.each(this.arrows, function(arrow) {
                     if (move == arrow.model.get('direction')) {
-                        //TODO: check if timestamp is based off the right vars
                         var timeDiff = arrow.model.get('finalTimestamp') - currentTime;
-                        console.log(timeDiff);
                         var score = this.scoreMove(timeDiff);
                         if (score > 0) {
                             this.updateScore(score, arrow);
@@ -71,8 +69,8 @@ define([
                 }, this);
             }
         },
-        showMove: function(move) {
-            //TODO: give some feedback that the move happened
+        showMove: function(move, currentTime) {
+            Socket.doMove(move, currentTime);
         },
         scoreMove: function(timeDiff) {
             //time diff is in milliseconds
@@ -170,7 +168,7 @@ define([
 
         var game = new Game.Model({
         });
-        socket.emit('start', {});
+        Socket.startGame();
         var gameView = new Game.View({
             model: game
         });
