@@ -61,13 +61,13 @@
     var numOldAvgs = 1;
     var numNewAvgs = 1;
     var numOuterAvgs = 1;
-    var outerThickness = 50;
+    var outerThickness = 30;
     var oldAvgs = [];
     var newAvgs = [];
     var outerAvgs = [];
     var repeatFrame = false;
     var upperMotionThreshold = 20;
-    var lowerMotionThreshold = 15;
+    var lowerMotionThreshold = 20;
     var outerMotionThreshold = 15;
 
     // mirror video
