@@ -187,7 +187,7 @@ define([
             return bonus;
         },
         updateScore: function(score, arrow, shouldGlow) {
-            var bonus = updateStreak(score);
+            var bonus = this.updateStreak(score);
             this.exclamation.set({
                 score: score,
                 streak: this.streaks[score],
