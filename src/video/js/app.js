@@ -61,7 +61,7 @@
     var lastHits = [1000,1000,1000];
     var oldAvgs = [[0,0,0],[0,0,0],[0,0,0]];
     var newAvgs = [[0,0,0],[0,0,0],[0,0,0]];
-    var outerAvgs = [[0,0,0],[0,0,0],[0,0,0]];
+    var outerAvgs = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
 
     // mirror video
     contextSource.translate(canvasSource.width, 0);
@@ -143,6 +143,12 @@
 
     function drawVideo() {
         contextSource.drawImage(video, 0, 0, video.width, video.height);
+        contextSource.fillRect(notes[0].area.x-40, notes[0].area.y-40, notes[0].area.width+80, 40);
+        contextSource.fillRect(notes[0].area.x-40, notes[0].area.y+notes[0].area.height,
+                                                          notes[0].area.width+80, 40);
+        contextSource.fillRect(notes[0].area.x-40, notes[0].area.y, 40, notes[0].area.height);
+        contextSource.fillRect(notes[0].area.x+notes[0].area.width, notes[0].area.y,
+                                                           40, notes[0].area.height);
     }
 
     function updateCounter() {
@@ -227,12 +233,12 @@
         for (var r=0; r<3; ++r) {
             // get the pixels in a note area from the blended image
             var blendedData = contextBlended.getImageData(notes[r].area.x, notes[r].area.y, notes[r].area.width, notes[r].area.height);
-            var blendedDataUp = contextBlended.getImageData(notes[r].area.x, notes[r].area.y-40, notes[r].area.width, 40);
-            var blendedDataDown = contextBlended.getImageData(notes[r].area.x, notes[r].area.y+notes[r].area.height,
-                                                              notes[r].area.width, 40);
-            var blendedDataLeft = contextBlended.getImageData(notes[r].area.x-40, notes[r].area.y, 40, notes[r].area.height);
+            var blendedDataUp = contextBlended.getImageData(notes[r].area.x-80, notes[r].area.y-80, notes[r].area.width+160, 80);
+            var blendedDataDown = contextBlended.getImageData(notes[r].area.x-80, notes[r].area.y+notes[r].area.height,
+                                                              notes[r].area.width+160, 80);
+            var blendedDataLeft = contextBlended.getImageData(notes[r].area.x-80, notes[r].area.y, 80, notes[r].area.height);
             var blendedDataRight = contextBlended.getImageData(notes[r].area.x+notes[r].area.width, notes[r].area.y,
-                                                               40, notes[r].area.height);
+                                                               80, notes[r].area.height);
             outs = [blendedDataUp, blendedDataDown, blendedDataLeft, blendedDataRight];
             var i = 0;
             var average = 0;
