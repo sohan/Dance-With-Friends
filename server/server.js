@@ -2,7 +2,7 @@ var express = require('express')
   , http = require('http')
   , path = require('path');
 
-var dev = true;
+var dev = false;
 if (dev) {
     var fbId = '441141345973790';
     var fbSecret = 'b61f25df6461d99681c5927e1575f5a1';
