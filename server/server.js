@@ -32,7 +32,7 @@ var update_speed = 1000 / fps;
 
 // Server's state stuff (flags n shit)
 var state = {
-    running: false, 
+    running: false,
     time_started: 0,
 };
 
@@ -77,11 +77,11 @@ io.sockets.on('connection', function (socket) {
         user.name = data.name;
     });
 
-});
+    // used for time synchronization
+    socket.on('ping', function(data){
+        socket.emit('ping', {num: data.num});
+    });
 
-// used for time synchronization
-io.sockets.on('ping', function(socket){
-    socket.emit('ping', {});
 });
 
 game_loop = function(socket) {

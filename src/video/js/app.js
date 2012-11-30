@@ -59,9 +59,14 @@
 
     var timesHit = 0;
     var lastHits = [1000,1000,1000];
-    var oldAvgs = [[0,0,0],[0,0,0],[0,0,0]];
-    var newAvgs = [[0,0,0],[0,0,0],[0,0,0]];
-    var outerAvgs = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
+    var numOldAvgs = 1;
+    var numNewAvgs = 1;
+    var numOuterAvgs = 1;
+    var outerThickness = 50;
+    var oldAvgs = [];
+    var newAvgs = [];
+    var outerAvgs = [];
+    var repeatFrame = false;
 
     // mirror video
     contextSource.translate(canvasSource.width, 0);
@@ -104,6 +109,21 @@
             note.area = {x:arrowPosX[i], y:arrowPosY[i],
                          width:note.visual.width, height:44};
             notes.push(note);
+            oldAvg = [];
+            newAvg = [];
+            outerAvg = [];
+            for (var j = 0; j < numOldAvgs; j++) {
+                oldAvg.push(0);
+            }
+            for (var j = 0; j < numNewAvgs; j++) {
+                newAvg.push(0);
+            }
+            for (var j = 0; j < numOuterAvgs; j++) {
+                outerAvg.push(0);
+            }
+            newAvgs.push(newAvg);
+            oldAvgs.push(oldAvg);
+            outerAvgs.push(outerAvg);
         }
         start();
     }
@@ -125,7 +145,7 @@
 
     function start() {
         $(canvasSource).show();
-        $(canvasBlended).show();
+        //$(canvasBlended).show();
         $("#arrows").show();
         $("#message").hide();
         $("#description").show();
@@ -135,9 +155,11 @@
     function update() {
         drawVideo();
         blend();
-        checkAreas();
-        updateCounter();
-        updateLastHits();
+        if (!repeatFrame) {
+            checkAreas();
+            updateCounter();
+            updateLastHits();
+        }
         timeOut = setTimeout(update, 1000/60);
     }
 
@@ -146,11 +168,11 @@
     }
 
     function updateCounter() {
-//        document.getElementById("hitcounter").innerHTML =
-//            "<table><tr>" +
-//            "<td>" + getPrevAvg(oldAvgs[0]) + "</td>" +
-//            "<td>" + getPrevAvg(newAvgs[0]) + "</td>" +
-//            "<td>" + getPrevAvg(outerAvgs[0]) + "</td></tr></table>";
+        document.getElementById("hitcounter").innerHTML =
+            "<table><tr>" +
+            "<td>" + getPrevAvg(oldAvgs[0]) + "</td>" +
+            "<td>" + getPrevAvg(newAvgs[0]) + "</td>" +
+            "<td>" + getPrevAvg(outerAvgs[0]) + "</td></tr></table>";
     }
 
     function updateLastHits() {
@@ -170,10 +192,12 @@
         var blendedData = contextSource.createImageData(width, height);
         // blend the 2 images
         differenceAccuracy(blendedData.data, sourceData.data, lastImageData.data);
-        // draw the result in a canvas
-        contextBlended.putImageData(blendedData, 0, 0);
-        // store the current webcam image
-        lastImageData = sourceData;
+        if (!repeatFrame) {
+            // draw the result in a canvas
+            contextBlended.putImageData(blendedData, 0, 0);
+            // store the current webcam image
+            lastImageData = sourceData;
+        }
     }
 
     function fastAbs(value) {
@@ -201,6 +225,7 @@
     function differenceAccuracy(target, data1, data2) {
         if (data1.length != data2.length) return null;
         var i = 0;
+        var flag = false;
         while (i < (data1.length * 0.25)) {
             var average1 = (data1[4*i] + data1[4*i+1] + data1[4*i+2]) / 3;
             var average2 = (data2[4*i] + data2[4*i+1] + data2[4*i+2]) / 3;
@@ -210,6 +235,12 @@
             target[4*i+2] = diff;
             target[4*i+3] = 0xFF;
             ++i;
+            if (diff != 0) flag = true;
+        }
+        if (!flag) {
+            repeatFrame = true;
+        } else {
+            repeatFrame = false;
         }
     }
 
@@ -226,14 +257,33 @@
         // loop over the note areas
         for (var r=0; r<3; ++r) {
             // get the pixels in a note area from the blended image
-            var blendedData = contextBlended.getImageData(notes[r].area.x, notes[r].area.y, notes[r].area.width, notes[r].area.height);
-            var blendedDataUp = contextBlended.getImageData(notes[r].area.x-80, notes[r].area.y-80, notes[r].area.width+160, 80);
-            var blendedDataDown = contextBlended.getImageData(notes[r].area.x-80, notes[r].area.y+notes[r].area.height,
-                                                              notes[r].area.width+160, 80);
-            var blendedDataLeft = contextBlended.getImageData(notes[r].area.x-80, notes[r].area.y, 80, notes[r].area.height);
-            var blendedDataRight = contextBlended.getImageData(notes[r].area.x+notes[r].area.width, notes[r].area.y,
-                                                               80, notes[r].area.height);
-            outs = [blendedDataUp, blendedDataDown, blendedDataLeft, blendedDataRight];
+            var blendedData =
+                contextBlended.getImageData(notes[r].area.x,
+                                            notes[r].area.y,
+                                            notes[r].area.width,
+                                            notes[r].area.height);
+            var blendedDataUp =
+                contextBlended.getImageData(notes[r].area.x-outerThickness,
+                                            notes[r].area.y-outerThickness,
+                                            notes[r].area.width+2*outerThickness,
+                                            outerThickness);
+            var blendedDataDown =
+                contextBlended.getImageData(notes[r].area.x-outerThickness,
+                                            notes[r].area.y+notes[r].area.height,
+                                            notes[r].area.width+2*outerThickness,
+                                            outerThickness);
+            var blendedDataLeft =
+                contextBlended.getImageData(notes[r].area.x-outerThickness,
+                                            notes[r].area.y,
+                                            outerThickness,
+                                            notes[r].area.height);
+            var blendedDataRight =
+                contextBlended.getImageData(notes[r].area.x+notes[r].area.width,
+                                            notes[r].area.y,
+                                            outerThickness,
+                                            notes[r].area.height);
+            outs = [blendedDataUp, blendedDataDown,
+                    blendedDataLeft, blendedDataRight];
             var i = 0;
             var average = 0;
             // loop over the pixels
@@ -270,8 +320,8 @@
             outerAvgs[r].push(maxAvgOut);
             outerAvgs[r].shift();
             outerAvg = getPrevAvg(outerAvgs[r]);
-            if (prevAvg > 10 && average < 2 && lastHits[r] > 5 &&
-                outerAvg < 5) {
+            if (prevAvg > 10 && average < 10 && lastHits[r] > 5 &&
+                outerAvg < 10) {
                 // over a small limit, consider that a movement is detected
                 // play a note and show a visual feedback to the user
                 lastHits[r] = 0;
