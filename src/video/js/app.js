@@ -42,8 +42,8 @@
             null
     );
 
-    var arrowPosX = [107,284,461];
-    var arrowPosY = [300,400,300];
+    var arrowPosX = [137,284,431];
+    var arrowPosY = [300,380,300];
 
     var timeOut, lastImageData;
     var canvasSource = $("#canvas-source")[0];
