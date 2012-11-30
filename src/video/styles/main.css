@@ -62,9 +62,9 @@ video, #info, #description {
 #arrows #front img {
 	display: none;
 }
-#arrows #arrow0b { left: 150px; top: 350px; }
-#arrows #arrow1b { left: 300px; top: 420px; }
-#arrows #arrow2b { left: 450px; top: 350px; }
-#arrows #arrow0 { left: 150px; top: 350px; }
-#arrows #arrow1 { left: 300px; top: 420px; }
-#arrows #arrow2 { left: 450px; top: 350px; }
+#arrows #arrow0b { left: 107px; top: 300px; }
+#arrows #arrow1b { left: 284px; top: 400px; }
+#arrows #arrow2b { left: 461px; top: 300px; }
+#arrows #arrow0 { left: 107px; top: 300px; }
+#arrows #arrow1 { left: 284px; top: 400px; }
+#arrows #arrow2 { left: 461px; top: 300px; }

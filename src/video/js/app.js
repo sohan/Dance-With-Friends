@@ -1,5 +1,4 @@
 (function() {
-
     function hasGetUserMedia() {
         // Note: Opera builds are unprefixed.
         return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
@@ -43,8 +42,8 @@
             null
     );
 
-    var arrowPosX = [150,300,450];
-    var arrowPosY = [350,420,350];
+    var arrowPosX = [107,284,461];
+    var arrowPosY = [300,400,300];
 
     var timeOut, lastImageData;
     var canvasSource = $("#canvas-source")[0];
@@ -67,6 +66,9 @@
     var newAvgs = [];
     var outerAvgs = [];
     var repeatFrame = false;
+    var upperMotionThreshold = 20;
+    var lowerMotionThreshold = 15;
+    var outerMotionThreshold = 15;
 
     // mirror video
     contextSource.translate(canvasSource.width, 0);
@@ -320,8 +322,10 @@
             outerAvgs[r].push(maxAvgOut);
             outerAvgs[r].shift();
             outerAvg = getPrevAvg(outerAvgs[r]);
-            if (prevAvg > 10 && average < 10 && lastHits[r] > 5 &&
-                outerAvg < 10) {
+            if (prevAvg > upperMotionThreshold &&
+                average < lowerMotionThreshold &&
+                lastHits[r] > 5 &&
+                outerAvg < outerMotionThreshold) {
                 // over a small limit, consider that a movement is detected
                 // play a note and show a visual feedback to the user
                 lastHits[r] = 0;

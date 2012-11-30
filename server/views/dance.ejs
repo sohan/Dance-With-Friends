@@ -8,6 +8,9 @@
     <script src="static/js/lib/less.min.js" type="text/javascript"></script>
   </head>
   <body>
+
+    <video id="webcam" autoplay width="640" height="480"></video>
+
     <div id="fb-root"></div>
     <div class="container-fluid game-container">
       <div class="row-fluid game-container">
@@ -16,12 +19,24 @@
         </div>
         <div class="span9 right-pane pane">
           <div id="game-container">
+            <div id="arrow-spots">
+              <div class="span4 spot-container">
+                  <div id="left-spot-arrow" class="left-spot spot"> </div>
+              </div>
+              <div class="span4 spot-container">
+                <div id="down-spot-arrow" class= "down-spot spot"> </div>
+              </div>
+              <div class="span4 spot-container">
+                <div id="right-spot-arrow" class="right-spot spot"> </div>
+              </div>
+            </div>
             <div id="arrows-container">
               <div class="row-fluid full-container">
-                <div id="left-arrows" class="span3 arrow-lane"> </div>
-                <div id="down-arrows" class="span3 arrow-lane"> </div>
-                <div id="up-arrows" class="span3 arrow-lane"> </div>
-                <div id="right-arrows" class="span3 arrow-lane"> </div>
+                <div id="left-arrows" class="span4 arrow-lane"> </div>
+
+                <div id="down-arrows" class="span4 arrow-lane"> </div>
+                <!--<div id="up-arrows" class="span4 arrow-lane"> </div> -->
+                <div id="right-arrows" class="span4 arrow-lane"> </div>
               </div>
             </div>
           </div>
