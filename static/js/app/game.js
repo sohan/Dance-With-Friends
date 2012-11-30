@@ -8,6 +8,7 @@ define([
   'userMeta',
   'socket',
   'bufferloader',
+  'soundmanager2',
 ], function($, _, Backbone, App, Arrow, SongMeta, UserMeta, Socket) {
     var Game = App.Game || {};
 
@@ -110,9 +111,13 @@ define([
             new Game.ExclamationView({
                 model: this.exclamation
             });
-            this.song = options.song || null;
-            console.log('start game at', this.model.getTimeOffset()/1000, this.song.buffer.duration);
-            this.song.noteGrainOn(0, this.model.getTimeOffset()/1000, this.song.buffer.duration);
+
+            soundManager.createSound({
+                 id:'gangamstyle',
+                 url:'../static/songs/gangamstyle.mp3'
+            });
+            soundManager.setPosition('gangamstyle',this.model.getTimeOffset());
+            soundManager.play('gangamstyle');
 
             // If we're using feet, position markers:
             if (this.model.get('game_type') == 'feet'){
@@ -123,7 +128,7 @@ define([
                 $('#arrow1').css('top', this.model.get('gameHeight') * .906 - $('#arrow1').height()/2)
                 $('#arrow2').css('top', this.model.get('gameHeight') * .697 - $('#arrow2').height()/2)
             } else {
-                $('#arrow0').hide(); 
+                $('#arrow0').hide();
                 $('#arrow1').hide();
                 $('#arrow2').hide();
             }
@@ -292,27 +297,6 @@ define([
 
     Game.initialize = function(user) {
 
-
-        Game.loading_start('Allow camera access in your toolbar above!');
-        var soundContext;
-        var songBufferSource;
-        var AudioContext = (
-            window.AudioContext ||
-                window.webkitAudioContext ||
-                null
-        );
-
-        var initializeMedia = function() {
-            if (!AudioContext) {
-                console.log("AudioContext not supported!");
-            }
-            else {
-                loadSongs();
-            }
-
-
-        }
-
         var sensor_hit = function(r) {
             if (r == 0) {
                 App.gameView.processMove('left', App.gameInstance.get('currentTime'));
@@ -323,26 +307,12 @@ define([
             }
         }
 
-        var loadSongs = function() {
-            Game.loading_start('Buffering audio...');
-            soundContext = new AudioContext();
-            bufferLoader = new BufferLoader(soundContext,
-                                            [
-                                                'static/songs/gangamstyle.mp3',
-                                            ],
-                                            createSongBufferSource
-                                           );
-            bufferLoader.load();
-        }
-
-        var createSongBufferSource = function(bufferList) {
-            songBufferSource = soundContext.createBufferSource();
-            songBufferSource.buffer = bufferList[0];
-            songBufferSource.connect(soundContext.destination);
-            Game.loading_end();
-            setDelay();
-            // Load our vision system from the namespace provided in vision.js
-
+        var loadSoundManager = function() {
+            soundManager.setup({
+                url: '/',
+                preferFlash: false,
+                onready: initGame,
+            })
         }
 
         var setDelay = function() {
@@ -391,7 +361,6 @@ define([
                 });
                 var gameView = new Game.View({
                     model: game,
-                    song: songBufferSource
                 });
                 var user = new UserMeta.Model();
                 var userView = new UserMeta.View({
@@ -411,14 +380,14 @@ define([
         if (navigator.getUserMedia) {
             navigator.getUserMedia({audio: false, video: true}, function(stream) {
                 video.src = stream;
-                 initializeMedia();
+                 loadSoundManager();
             }, null);
         } else {
             navigator.getMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
             if (navigator.getMedia) {
                 navigator.getMedia({audio: true, video: true}, function(stream) {
                     video.src = window.URL.createObjectURL(stream);
-                    initializeMedia();
+                    loadSoundManager();
                 }, null);
             }
         }
