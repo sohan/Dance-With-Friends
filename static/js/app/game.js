@@ -31,7 +31,7 @@ define([
 
     Game.View = Backbone.View.extend({
         el: $('#game-container'),
-        initialize: function() {
+        initialize: function(options) {
             this.interval = setInterval($.proxy(this.runGameLoop, this), 1000 / this.model.get('gameFPS'));
             $(document).on('keydown', $.proxy(this.detectMove, this));
             this.arrows = [];
@@ -42,7 +42,8 @@ define([
                 this.model.set('bufferZoneTime', this.model.get('gameHeight')/this.model.get('velocity'));
             }, this));
             $(window).resize();
-            song.noteOn(0);
+            this.song = options.song || null;
+            this.song.noteOn(0);
         },
         detectMove: function(e) {
             var move = null;
@@ -184,22 +185,8 @@ define([
     Game.initialize = function(user) {
 
         var video = $('#webcam')[0];
-        var soundContext();
+        var soundContext;
         var songBufferSource;
-
-        if (navigator.getUserMedia) {
-            navigator.getUserMedia({audio: false, video: true}, function(stream) {
-                video.src = stream;
-                 this.initializeMedia();
-            }, null);
-        } else if (navigator.webkitGetUserMedia) {
-            navigator.webkitGetUserMedia({audio: true, video: true}, function(stream) {
-                video.src = window.webkitURL.createObjectURL(stream);
-                this.initializeMedia();
-            }, null);
-        } else {
-            //well, shit
-        }
 
         var AudioContext = (
             window.AudioContext ||
@@ -280,7 +267,19 @@ define([
             App.user = user;
         }
 
-        initializeMedia();
+        if (navigator.getUserMedia) {
+            navigator.getUserMedia({audio: false, video: true}, function(stream) {
+                video.src = stream;
+                 initializeMedia();
+            }, null);
+        } else if (navigator.webkitGetUserMedia) {
+            navigator.webkitGetUserMedia({audio: true, video: true}, function(stream) {
+                video.src = window.webkitURL.createObjectURL(stream);
+                initializeMedia();
+            }, null);
+        } else {
+            //well, shit
+        }
     }
 
     return Game;
