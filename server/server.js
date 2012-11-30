@@ -4,15 +4,19 @@ var express = require('express')
 
 const fbId = '441141345973790';
 const fbSecret = 'b61f25df6461d99681c5927e1575f5a1';
-const fbCallbackAddress = 'http://hackathon.com:8082/dance';
+const fbCallbackAddress = 'http://localhost:8082/dance';
 
 var app = express();
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 var auth = require('connect-auth');
+var ejs = require('ejs');
+ejs.open = '{{';
+ejs.close = '}}';
 
 var static_path = path.normalize(__dirname +'/../static');
 app.configure(function() {
+    app.set('view engine', 'ejs');
     app.use('/static', express.static(static_path));
     app.use(express.cookieParser('hellomoto'));
     app.use(express.session());
@@ -111,12 +115,25 @@ init_player = function(id) {
 
 // Route our basic page
 app.get('/dance', function (req, res) {
-    var filepath = path.normalize(__dirname + "/../index.html");
-    res.sendfile(filepath);
+    var filepath = path.normalize(__dirname + "/index.html");
+    req.authenticate(['facebook'], function(error, authenticated) {
+        if (authenticated) {
+            var details = req.getAuthDetails();
+            console.log('details', details);
+            res.render('dance', {
+                fbName: details.user.name,
+                fbId: details.user.id,
+                fbPic: 'https://graph.facebook.com/' + details.user.username + '/picture'
+            });
+        } else {
+            res.write('<html><body><h1>couldnt log in</h1></body></html>');
+            res.end();
+        }
+    });
 });
 
 app.get('/', function(req, res, params) {
-    var filepath = path.normalize(__dirname + "/../login.html");
+    var filepath = path.normalize(__dirname + "/login.html");
     res.sendfile(filepath);
 });
 

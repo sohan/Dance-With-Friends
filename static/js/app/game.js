@@ -181,16 +181,17 @@ define([
                     initGame(delay);
                 }
             });
-        }
-
-        var getDelay = function() {
-            for(var i = 0; i < 5; i++){
-                requestTimes[i] = new Date().getTime();
-                Socket.socket.emit('ping', {num: i});
+            var getDelay = function() {
+                for(var i = 0; i < 5; i++){
+                    requestTimes[i] = new Date().getTime();
+                    Socket.socket.emit('ping', {num: i});
+                }
             }
+            getDelay();
         }
 
         var initGame = function(delay) {
+            console.log('delay', delay);
             var game = new Game.Model({
                 delay: delay
             });
