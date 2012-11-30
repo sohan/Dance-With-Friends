@@ -3,7 +3,7 @@ define([
     'socketio',
 ], function(App, SocketIO) {
     var Socket = App.Socket || {};
-    Socket.socket = Socket.socket || io.connect('http://localhost:8082');
+    Socket.socket = Socket.socket || io.connect('http://' + window.hostname + window.socketPort);
 
     Socket.startGame = function() {
         Socket.socket.emit('start', {});

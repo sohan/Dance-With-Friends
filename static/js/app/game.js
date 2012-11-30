@@ -16,6 +16,7 @@ define([
             startTime: undefined,
             currentTime: undefined,
             players: {}, //id to player state
+            gameType: 'hands', // 'feet'
             arrows: {},
             gameFPS: 30,
             velocity: .1,
@@ -34,6 +35,16 @@ define([
             score: undefined
         },
     });
+
+    Game.loading_start = function(text) {
+        var text = $('<div class="description">' + text + '</div>');
+        $('#loading').html('<img src="/static/img/ajax-loader.gif"></img>');
+        $('#loading').append(text);
+    }
+
+    Game.loading_end = function() {
+        $('#loading').html('');
+    }
 
     Game.scoreToWord = function(score) {
         if (!score) {
@@ -61,10 +72,15 @@ define([
         },
         render: function() {
             var score = this.model.get('score');
+            var streak = this.model.get('streak');
+            var streakTest = "";
+            if (streak > 2){
+                streakTest = " " + streak + "X";
+            }
             var word = Game.scoreToWord(score);
             if (word) {
                 this.$el.removeClass();
-                var div = $('<div class="text">' + word + '!</div>');
+                var div = $('<div class="text">' + word + streakTest + '!</div>');
                 this.$el.html(div);
                 setInterval(function() {
                     if (div.length)
@@ -79,11 +95,12 @@ define([
         el: $('#game-container'),
         initialize: function(options) {
             this.interval = setInterval($.proxy(this.runGameLoop, this), 1000 / this.model.get('gameFPS'));
-            $(document).on('keydown', $.proxy(this.detectMove, this));
+            $(document).on('keydown', $.proxy(this.detectMove, this))
             this.arrows = [];
 
             $(window).resize($.proxy(function() {
                 this.model.set('gameHeight', $(this.el).height());
+                this.model.set('gameWidth', $(this.el).width());
                 this.model.set('timeToTop', this.model.get('gameHeight')/this.model.get('velocity'));
                 this.model.set('bufferZoneTime', this.model.get('gameHeight')/this.model.get('velocity'));
             }, this));
@@ -94,7 +111,24 @@ define([
                 model: this.exclamation
             });
             this.song = options.song || null;
-            this.song.noteOn(0, this.model.getTimeOffset());
+            console.log('start game at', this.model.getTimeOffset()/1000, this.song.buffer.duration);
+            this.song.noteGrainOn(0, this.model.getTimeOffset()/1000, this.song.buffer.duration);
+
+            // If we're using feet, position markers:
+            if (this.model.get('gameType')){
+                $('#arrow0').css('left', this.model.get('gameWidth') * .22 - $('#arrow0').width()/2)
+                $('#arrow1').css('left', this.model.get('gameWidth') * .498 - $('#arrow1').width()/2)
+                $('#arrow2').css('left', this.model.get('gameWidth') * .775 - $('#arrow2').width()/2)
+                $('#arrow0').css('top', this.model.get('gameHeight') * .697 - $('#arrow0').height()/2)
+                $('#arrow1').css('top', this.model.get('gameHeight') * .906 - $('#arrow1').height()/2)
+                $('#arrow2').css('top', this.model.get('gameHeight') * .697 - $('#arrow2').height()/2)
+            } else {
+                $('#arrow0').hide(); 
+                $('#arrow1').hide();
+                $('#arrow2').hide();
+            }
+
+            this.streaks = [0, 0, 0, 0, 0];
         },
         detectMove: function(e) {
             var hit_box = '';
@@ -109,7 +143,7 @@ define([
 
             this.processMove(hit_box, this.model.get('currentTime'));
 
-            
+
         },
         processMove: function(move_string, currentTime) {
             move = move_string.charAt(0);
@@ -164,12 +198,30 @@ define([
                 return 0;
             }
         },
+        updateStreak: function(score) {
+            var bonus = 0;
+            if(score > 1){
+                for(var i = 0; i < 5; i++){
+                    if(score == i){
+                        this.streaks[i] += 1;
+                        if(this.streaks[i] >= 3){
+                            bonus = (1 << (i - 2)) * 250;
+                        }
+                    } else {
+                        this.streaks[i] = 0;
+                    }
+                }
+            }
+            return bonus;
+        },
         updateScore: function(score, arrow, shouldGlow) {
+            var bonus = this.updateStreak(score);
             this.exclamation.set({
                 score: score,
+                streak: this.streaks[score],
                 cb: new Date().getTime()
             });
-            App.user.set('score', App.user.get('score') + score * 1000);
+            App.user.set('score', App.user.get('score') + score * 1000 + bonus);
             var scoreWord = Game.scoreToWord(score);
             App.user.set(scoreWord, App.user.get(scoreWord) + 1);
             if (shouldGlow)
@@ -241,6 +293,7 @@ define([
     Game.initialize = function(user) {
 
 
+        Game.loading_start('Allow camera access in your toolbar above!');
         var soundContext;
         var songBufferSource;
         var AudioContext = (
@@ -251,16 +304,16 @@ define([
 
         var initializeMedia = function() {
             if (!AudioContext) {
-                alert("AudioContext not supported!");
+                console.log("AudioContext not supported!");
             }
             else {
                 loadSongs();
             }
 
-            
+
         }
 
-        sensor_hit = function(r) {
+        var sensor_hit = function(r) {
             if (r == 0) {
                 App.gameView.processMove('left', App.gameInstance.get('currentTime'));
             } else if (r == 1) {
@@ -271,6 +324,7 @@ define([
         }
 
         var loadSongs = function() {
+            Game.loading_start('Buffering audio...');
             soundContext = new AudioContext();
             bufferLoader = new BufferLoader(soundContext,
                                             [
@@ -285,12 +339,14 @@ define([
             songBufferSource = soundContext.createBufferSource();
             songBufferSource.buffer = bufferList[0];
             songBufferSource.connect(soundContext.destination);
-            initGame();
+            Game.loading_end();
+            setDelay();
             // Load our vision system from the namespace provided in vision.js
-           
+
         }
 
         var setDelay = function() {
+            Game.loading_start('Compensating for lag...');
             var pingCounter = 0;
             var delay = -1;
             var requestTimes = [0,0,0,0,0]
@@ -299,20 +355,22 @@ define([
             Socket.socket.on('ping', function(data){
                 responseTimes[data.num] = new Date().getTime();
                 pingCounter++;
-                if(pingCounter >= 5) {
+                if(pingCounter >= 3) {
                     var totalDelay = 0;
-                    for(var i = 0; i < 5; i++){
+                    for(var i = 0; i < 3; i++){
                         totalDelay += responseTimes[i] - requestTimes[i];
                     }
-                    delay = totalDelay / (5*2);
+                    delay = totalDelay / (3*2);
                     //TODO: end loading
                     Socket.socket.removeListener('ping',  this);
 
-                    App.gameInstance.set('delay', delay);
+                    console.log('dleay', delay);
+                    Game.loading_end();
+                    initGame(delay);
                 }
             });
             var getDelay = function() {
-                for(var i = 0; i < 5; i++){
+                for(var i = 0; i < 3; i++){
                     requestTimes[i] = new Date().getTime();
                     Socket.socket.emit('ping', {num: i});
                 }
@@ -320,11 +378,14 @@ define([
             getDelay();
         }
 
-        var initGame = function() {
+        var initGame = function(delay) {
+            Game.loading_start('Loading game assets...');
             Socket.startGame();
             Socket.socket.on('startGame', function(data) {
+                Game.loading_end();
                 var game = new Game.Model({
-                    startTime: new Date().getTime() - data.time
+                    startTime: new Date().getTime() - data.time,
+                    delay: delay
                 });
                 var gameView = new Game.View({
                     model: game,
@@ -338,10 +399,9 @@ define([
                 App.gameView = gameView;
                 App.user = user;
 
-                
+
                 vision.startVision($, sensor_hit);
 
-                setDelay();
             });
         }
 
@@ -351,15 +411,15 @@ define([
                 video.src = stream;
                  initializeMedia();
             }, null);
-        } else if (navigator.webkitGetUserMedia) {
-            navigator.webkitGetUserMedia({audio: true, video: true}, function(stream) {
-                video.src = window.webkitURL.createObjectURL(stream);
-                initializeMedia();
-            }, null);
         } else {
-            //well, shit
+            navigator.getMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+            if (navigator.getMedia) {
+                navigator.getMedia({audio: true, video: true}, function(stream) {
+                    video.src = window.URL.createObjectURL(stream);
+                    initializeMedia();
+                }, null);
+            }
         }
-
     }
 
     return Game;
