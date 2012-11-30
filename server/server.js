@@ -2,13 +2,27 @@ var express = require('express')
   , http = require('http')
   , path = require('path');
 
+const fbId = '441141345973790';
+const fbSecret = 'b61f25df6461d99681c5927e1575f5a1';
+const fbCallbackAddress = 'http://hackathon.com:8082/dance';
+
 var app = express();
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
+var auth = require('connect-auth');
 
 var static_path = path.normalize(__dirname +'/../static');
 app.configure(function() {
     app.use('/static', express.static(static_path));
+    app.use(express.cookieParser('hellomoto'));
+    app.use(express.session());
+    app.use(auth([
+        auth.Facebook({
+            appId: fbId,
+            appSecret: fbSecret,
+            callback: fbCallbackAddress
+        })
+    ]));
 });
 
 // Vars (better way to organize all this)
@@ -56,6 +70,13 @@ io.sockets.on('connection', function (socket) {
         user.score = data.score;
     });
 
+    socket.on('setUser', function(data) {
+        var user = game_state.users[socket.id];
+        user.fb_id = data.id;
+        user.pic = data.pic;
+        user.name = data.name;
+    });
+
 });
 
 // used for time synchronization
@@ -83,14 +104,26 @@ init_player = function(id) {
 
         ],
         offset: 0,
-        name: id
+        name: id,
+        pic: '',
     };
 };
 
 // Route our basic page
-var filepath = path.normalize(__dirname + "/../index.html");
-app.get('/', function (req, res) {
+app.get('/dance', function (req, res) {
+    var filepath = path.normalize(__dirname + "/../index.html");
     res.sendfile(filepath);
+});
+
+app.get('/', function(req, res, params) {
+    var filepath = path.normalize(__dirname + "/../login.html");
+    res.sendfile(filepath);
+});
+
+app.get('/logout', function(req, res, params) {
+    req.logout();
+    res.writeHead(303, { 'Location': "/" });
+    res.end('');
 });
 
 server.listen(8082);

@@ -22,5 +22,9 @@ define([
         });
     }
 
+    Socket.setUser = function(user) {
+        Socket.socket.emit('setUser', user);
+    }
+
     return Socket;
 });
