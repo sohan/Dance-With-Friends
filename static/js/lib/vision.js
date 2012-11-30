@@ -79,7 +79,7 @@ vision.startVision = function($, hit_callback) {
 
     if (handmode) {
         upperMotionThreshold = -1;
-        lowerMotionThreshold = 10;
+        lowerMotionThreshold = 5;
         outerMotionThreshold = 10000;
     }
 
@@ -161,8 +161,8 @@ vision.startVision = function($, hit_callback) {
     }
 
     function start() {
-        $(canvasSource).show();
-        //$(canvasBlended).show();
+        //$(canvasSource).show();
+        $(canvasBlended).show();
         $("#arrows").show();
         $("#message").hide();
         $("#description").show();
@@ -246,7 +246,9 @@ vision.startVision = function($, hit_callback) {
         while (i < (data1.length * 0.25)) {
             var average1 = (data1[4*i] + data1[4*i+1] + data1[4*i+2]) / 3;
             var average2 = (data2[4*i] + data2[4*i+1] + data2[4*i+2]) / 3;
-            var diff = threshold(fastAbs(average1 - average2));
+            //var diff = threshold(fastAbs(average1 - average2));
+            var diff = fastAbs(average1 - average2);
+
             target[4*i] = diff;
             target[4*i+1] = diff;
             target[4*i+2] = diff;
