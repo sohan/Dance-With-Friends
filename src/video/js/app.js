@@ -109,7 +109,7 @@
                 visual: $("#arrow" + i)[0]
             };
             note.area = {x:arrowPosX[i], y:arrowPosY[i],
-                         width:note.visual.width, height:44};
+                         width:note.visual.width, height:note.visual.height};
             notes.push(note);
             oldAvg = [];
             newAvg = [];
