@@ -8,6 +8,10 @@
     <script src="static/js/lib/less.min.js" type="text/javascript"></script>
   </head>
   <body>
+
+    <video id="webcam" autoplay width="640" height="480"></video>
+
+    <div id="fb-root"></div>
     <div class="container-fluid game-container">
       <div class="row-fluid game-container">
         <div class="span3 left-pane pane">
@@ -43,6 +47,7 @@
       <table class="table table-striped leaderboard">
         <% _.each(players, function(player) { %>
           <tr> 
+            <td><img class="profile-pic" src="<%= player.pic %>"></img></td>
             <td><%= player.name %></td>
             <td><%= player.score %></td>
           </tr>

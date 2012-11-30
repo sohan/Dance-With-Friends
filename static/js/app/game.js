@@ -7,6 +7,7 @@ define([
   'songMeta',
   'userMeta',
   'socket',
+  'bufferloader',
 ], function($, _, Backbone, App, Arrow, SongMeta, UserMeta, Socket) {
     var Game = App.Game || {};
 
@@ -20,7 +21,7 @@ define([
             timeToTop: 5000,
             bufferZoneTime: 3000,
             currentSong: SongMeta['Gangam Style'],
-            songIndex: 0 // The current index in the song stamp list 
+            songIndex: 0 // The current index in the song stamp list
         },
         getTimeOffset: function() {
             return new Date().getTime() - this.get('startTime');
@@ -32,8 +33,8 @@ define([
         initialize: function() {
             this.interval = setInterval($.proxy(this.runGameLoop, this), 1000 / this.model.get('gameFPS'));
             $(document).on('keyup', $.proxy(this.detectMove, this));
-            this.arrows = [];            
-            
+            this.arrows = [];
+
             $(window).resize($.proxy(function() {
                 this.model.set('gameHeight', $(this.el).height());
                 this.model.set('timeToTop', this.model.get('gameHeight')/this.model.get('velocity'));
@@ -146,7 +147,7 @@ define([
                 } else { //Otherwise we stop because none past it will be true either
                     stop = true;
                 }
-            
+
             }
         },
 
@@ -161,23 +162,94 @@ define([
     });
 
     Game.initialize = function(user) {
-        /*
-         * key: seconds
-         * value: list of arrows that should appear at that time
-         * */
 
-        var game = new Game.Model({
-        });
-        Socket.startGame();
-        var gameView = new Game.View({
-            model: game
-        });
-        var user = new UserMeta.Model();
-        var userView = new UserMeta.View({
-            model: user
-        });
-        App.gameInstance = game;
-        App.user = user;
+        var video = $('#webcam')[0];
+
+        if (navigator.getUserMedia) {
+            navigator.getUserMedia({audio: false, video: true}, function(stream) {
+                video.src = stream;
+                initialize();
+            }, webcamError);
+        } else if (navigator.webkitGetUserMedia) {
+            navigator.webkitGetUserMedia({audio: true, video: true}, function(stream) {
+                video.src = window.webkitURL.createObjectURL(stream);
+                initialize();
+            }, webcamError);
+        } else {
+            //well, shit
+        }
+
+        var AudioContext = (
+            window.AudioContext ||
+                window.webkitAudioContext ||
+                null
+        );
+
+        initializeMedia = function() {
+            if (!AudioContext) {
+                alert("AudioContext not supported!");
+            }
+            else {
+                loadSounds();
+            }
+        }
+
+        loadSounds = function() {
+            soundContext = new AudioContext();
+            bufferLoader = new BufferLoader(soundContext,
+                                            [
+                                                'sounds/gangnamstyle.mp3',
+                                            ],
+                                            bootstrapGame();
+                                           );
+            bufferLoader.load();
+        }
+
+        var bootstrapGame = function() {
+            var pingCounter = 0;
+            var delay = -1;
+            var requestTimes = [0,0,0,0,0]
+            var responseTimes = [0,0,0,0,0]
+            //TODO: start loading
+            Socket.socket.on('ping', function(data){
+                responseTimes[data.num] = new Date().getTime();
+                pingCounter++;
+                if(pingCounter >= 5){
+                    var totalDelay = 0;
+                    for(var i = 0; i < 5; i++){
+                        totalDelay += responseTimes[i] - requestTimes[i];
+                    }
+                    delay = totalDelay / (5*2);
+                    //TODO: end loading
+                    initGame(delay);
+                }
+            });
+        }
+
+        var getDelay = function() {
+            for(var i = 0; i < 5; i++){
+                requestTimes[i] = new Date().getTime();
+                Socket.socket.emit('ping', {num: i});
+            }
+        }
+
+        var initGame = function(delay) {
+            var game = new Game.Model({
+                delay: delay
+            });
+            Socket.startGame();
+            var gameView = new Game.View({
+                model: game
+            });
+            var user = new UserMeta.Model();
+            var userView = new UserMeta.View({
+                model: user
+            });
+            App.gameInstance = game;
+            App.user = user;
+        }
+
+        initializeMedia();
     }
 
     return Game;
