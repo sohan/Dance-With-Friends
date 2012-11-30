@@ -72,10 +72,10 @@ define([
 
     Game.View = Backbone.View.extend({
         el: $('#game-container'),
-        initialize: function() {
+        initialize: function(options) {
             this.interval = setInterval($.proxy(this.runGameLoop, this), 1000 / this.model.get('gameFPS'));
             $(document).on('keydown', $.proxy(this.detectMove, this));
-            this.arrows = [];            
+            this.arrows = [];
 
             $(window).resize($.proxy(function() {
                 this.model.set('gameHeight', $(this.el).height());
@@ -88,6 +88,8 @@ define([
             new Game.ExclamationView({
                 model: this.exclamation
             });
+            this.song = options.song || null;
+            this.song.noteOn(0);
         },
         detectMove: function(e) {
             var move = null;
@@ -129,7 +131,7 @@ define([
                             this.updateScore(score, arrow);
                         }
 
-                       
+
                     }
                 }, this);
             }
@@ -147,7 +149,7 @@ define([
              * 3: awesome
              * 4: perfect
              * */
-            
+
             if (timeDiff < 50) {
                 return 4;
             } else if (timeDiff < 100) {
@@ -183,7 +185,7 @@ define([
             }, this);
             this.removeArrows(forRemoval);
 
-            
+
         },
         addNewArrows: function(currentTime) {
             // Add arrows within the timestamp buffer
@@ -230,20 +232,8 @@ define([
     Game.initialize = function(user) {
 
         var video = $('#webcam')[0];
-
-        if (navigator.getUserMedia) {
-            navigator.getUserMedia({audio: false, video: true}, function(stream) {
-                video.src = stream;
-                 this.initializeMedia();
-            }, null);
-        } else if (navigator.webkitGetUserMedia) {
-            navigator.webkitGetUserMedia({audio: true, video: true}, function(stream) {
-                video.src = window.webkitURL.createObjectURL(stream);
-                this.initializeMedia();
-            }, null);
-        } else {
-            //well, shit
-        }
+        var soundContext;
+        var songBufferSource;
 
         var AudioContext = (
             window.AudioContext ||
@@ -251,24 +241,31 @@ define([
                 null
         );
 
-        initializeMedia = function() {
+        var initializeMedia = function() {
             if (!AudioContext) {
                 alert("AudioContext not supported!");
             }
             else {
-                loadSounds();
+                loadSongs();
             }
         }
 
-        loadSounds = function() {
+        var loadSongs = function() {
             soundContext = new AudioContext();
             bufferLoader = new BufferLoader(soundContext,
                                             [
                                                 'static/songs/gangamstyle.mp3',
                                             ],
-                                            bootstrapGame
+                                            createSongBufferSource
                                            );
             bufferLoader.load();
+        }
+
+        var createSongBufferSource = function(bufferList) {
+            songBufferSource = soundContext.createBufferSource();
+            songBufferSource.buffer = bufferList[0];
+            songBufferSource.connect(soundContext.destination);
+            bootstrapGame();
         }
 
         var bootstrapGame = function() {
@@ -307,7 +304,8 @@ define([
             });
             Socket.startGame();
             var gameView = new Game.View({
-                model: game
+                model: game,
+                song: songBufferSource
             });
             var user = new UserMeta.Model();
             var userView = new UserMeta.View({
@@ -317,7 +315,19 @@ define([
             App.user = user;
         }
 
-        initializeMedia();
+        if (navigator.getUserMedia) {
+            navigator.getUserMedia({audio: false, video: true}, function(stream) {
+                video.src = stream;
+                 initializeMedia();
+            }, null);
+        } else if (navigator.webkitGetUserMedia) {
+            navigator.webkitGetUserMedia({audio: true, video: true}, function(stream) {
+                video.src = window.webkitURL.createObjectURL(stream);
+                initializeMedia();
+            }, null);
+        } else {
+            //well, shit
+        }
     }
 
     return Game;
