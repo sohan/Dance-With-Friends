@@ -119,7 +119,6 @@ init_player = function(id) {
 
 // Route our basic page
 app.get('/dance', function (req, res) {
-    var filepath = path.normalize(__dirname + "/index.html");
     req.authenticate(['facebook'], function(error, authenticated) {
         if (authenticated) {
             var details = req.getAuthDetails();
