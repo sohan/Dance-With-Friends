@@ -7,7 +7,7 @@ define([
   'songMeta',
   'userMeta',
   'socket',
-], function($, _, Backbone, App, Arrow, SongMeta, UserMeta, socket) {
+], function($, _, Backbone, App, Arrow, SongMeta, UserMeta, Socket) {
     var Game = App.Game || {};
 
     Game.Model = Backbone.Model.extend({
@@ -21,7 +21,7 @@ define([
             timeToTop: 5000,
             bufferZoneTime: 3000,
             currentSong: SongMeta['Gangam Style'],
-            songIndex: 0 // The current index in the song stamp list 
+            songIndex: 0 // The current index in the song stamp list
         },
         getTimeOffset: function() {
             return new Date().getTime() - this.get('startTime');
@@ -34,7 +34,7 @@ define([
             this.interval = setInterval($.proxy(this.runGameLoop, this), 1000 / this.model.get('gameFPS'));
             $(document).on('keydown', $.proxy(this.detectMove, this));
             this.arrows = [];            
-            
+
             $(window).resize($.proxy(function() {
                 this.model.set('gameHeight', $(this.el).height());
                 this.model.set('timeToTop', this.model.get('gameHeight')/this.model.get('velocity'));
@@ -70,12 +70,12 @@ define([
         },
         processMove: function(move, currentTime) {
             if (move) {
-                this.showMove(move);
+                this.showMove(move, currentTime);
                 _.each(this.arrows, function(arrow) {
                     if (move == arrow.model.get('direction')) {
                         //TODO: check if timestamp is based off the right vars
                         var timeDiff = Math.abs(arrow.model.get('finalTimestamp') - currentTime);
-                        
+
                         var score = this.scoreMove(timeDiff);
                         if (score > 0) {
                             console.log(timeDiff);
@@ -87,8 +87,8 @@ define([
                 }, this);
             }
         },
-        showMove: function(move) {
-            //TODO: give some feedback that the move happened
+        showMove: function(move, currentTime) {
+            Socket.doMove(move, currentTime);
         },
         scoreMove: function(timeDiff) {
             //time diff is in milliseconds
@@ -163,7 +163,7 @@ define([
                 } else { //Otherwise we stop because none past it will be true either
                     stop = true;
                 }
-            
+
             }
         },
 
@@ -180,23 +180,52 @@ define([
     });
 
     Game.initialize = function(user) {
-        /*
-         * key: seconds
-         * value: list of arrows that should appear at that time
-         * */
 
-        var game = new Game.Model({
-        });
-        socket.emit('start', {});
-        var gameView = new Game.View({
-            model: game
-        });
-        var user = new UserMeta.Model();
-        var userView = new UserMeta.View({
-            model: user
-        });
-        App.gameInstance = game;
-        App.user = user;
+        var bootstrapGame = function() {
+            var pingCounter = 0;
+            var delay = -1;
+            var requestTimes = [0,0,0,0,0]
+            var responseTimes = [0,0,0,0,0]
+            //TODO: start loading
+            Socket.socket.on('ping', function(data){
+                responseTimes[data.num] = new Date().getTime();
+                pingCounter++;
+                if(pingCounter >= 5){
+                    var totalDelay = 0;
+                    for(var i = 0; i < 5; i++){
+                        totalDelay += responseTimes[i] - requestTimes[i];
+                    }
+                    delay = totalDelay / (5*2);
+                    //TODO: end loading
+                    initGame(delay);
+                }
+            });
+        }
+
+        var getDelay = function() {
+            for(var i = 0; i < 5; i++){
+                requestTimes[i] = new Date().getTime();
+                Socket.socket.emit('ping', {num: i});
+            }
+        }
+
+        var initGame = function(delay) {
+            var game = new Game.Model({
+                delay: delay
+            });
+            Socket.startGame();
+            var gameView = new Game.View({
+                model: game
+            });
+            var user = new UserMeta.Model();
+            var userView = new UserMeta.View({
+                model: user
+            });
+            App.gameInstance = game;
+            App.user = user;
+        }
+
+        bootstrapGame();
     }
 
     return Game;
