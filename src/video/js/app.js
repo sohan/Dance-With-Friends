@@ -146,11 +146,11 @@
     }
 
     function updateCounter() {
-        document.getElementById("hitcounter").innerHTML =
-            "<table><tr>" +
-            "<td>" + getPrevAvg(oldAvgs[0]) + "</td>" +
-            "<td>" + getPrevAvg(newAvgs[0]) + "</td>" +
-            "<td>" + getPrevAvg(outerAvgs[0]) + "</td></tr></table>";
+//        document.getElementById("hitcounter").innerHTML =
+//            "<table><tr>" +
+//            "<td>" + getPrevAvg(oldAvgs[0]) + "</td>" +
+//            "<td>" + getPrevAvg(newAvgs[0]) + "</td>" +
+//            "<td>" + getPrevAvg(outerAvgs[0]) + "</td></tr></table>";
     }
 
     function updateLastHits() {
@@ -270,7 +270,7 @@
             outerAvgs[r].push(maxAvgOut);
             outerAvgs[r].shift();
             outerAvg = getPrevAvg(outerAvgs[r]);
-            if (prevAvg > 10 && average < 2 && lastHits[r] > 10 &&
+            if (prevAvg > 10 && average < 2 && lastHits[r] > 5 &&
                 outerAvg < 5) {
                 // over a small limit, consider that a movement is detected
                 // play a note and show a visual feedback to the user
