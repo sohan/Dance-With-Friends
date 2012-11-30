@@ -4,7 +4,8 @@ define([
   'backbone',
   'app',
   'arrow',
-], function($, _, Backbone, App, Arrow) {
+  'songMeta',
+], function($, _, Backbone, App, Arrow, SongMeta) {
     var Game = App.Game || {};
 
     Game.Model = Backbone.Model.extend({
@@ -15,6 +16,8 @@ define([
             timeMoves: [],
             gameFPS: 30,
             velocity: 20,
+            timeToTop: 5.0,
+            bufferZoneTime: 3.0,
         },
         getTimeOffset: function() {
             return new Date().getTime() - this.get('startTime');
@@ -69,15 +72,10 @@ define([
          * key: seconds
          * value: list of arrows that should appear at that time
          * */
-        var timeMoves = {
-            5.0: ['l'],
-            7.5: ['r'],
-            10.0: ['d'],
-        }
 
         var game = new Game.Model({
             //velocity: pixels per second
-            timeMoves: timeMoves,
+            timeMoves: SongMeta['Gangam Style'],
             velocity: 1000,
         });
         var gameView = new Game.View({
