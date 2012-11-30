@@ -30,7 +30,7 @@ video, #info, #description {
 	height: 113px;
 }
 
-#xylo {
+#arrows {
 	display:none;
 	position: absolute;
 	top: 40px;
@@ -39,34 +39,34 @@ video, #info, #description {
 	padding: 0px;
 	border: 1px solid yellow;
 }
-#xylo #back {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	z-index:0;
-}
-#xylo #front {
+#arrows #back {
 	position: absolute;
 	top: 0px;
 	left: 0px;
 	z-index:1;
+}
+#arrows #front {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index:2;
 	width: 640px;
 	margin: 0px;
 	padding: 0px;
 }
-#xylo #back img, #xylo #front img {
+#arrows #back img, #arrows #front img {
 	margin: 0px;
 	padding: 0px;
+        position: absolute;
 }
-#xylo #front img {
-	position: absolute;
+#arrows #front img {
 	display: none;
 }
-#xylo #note0 { left: 0px; }
-#xylo #note1 { left: 82px; }
-#xylo #note2 { left: 159px; }
-#xylo #note3 { left: 238px; }
-#xylo #note4 { left: 313px; }
-#xylo #note5 { left: 390px; }
-#xylo #note6 { left: 468px; }
-#xylo #note7 { left: 544px; }
+#arrows #arrow0b { left: 0px; }
+#arrows #arrow1b { left: 82px; }
+#arrows #arrow2b { left: 159px; }
+#arrows #arrow3b { left: 238px; }
+#arrows #arrow0 { left: 0px; }
+#arrows #arrow1 { left: 82px; }
+#arrows #arrow2 { left: 159px; }
+#arrows #arrow3 { left: 238px; }
