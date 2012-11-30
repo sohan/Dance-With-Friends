@@ -143,12 +143,6 @@
 
     function drawVideo() {
         contextSource.drawImage(video, 0, 0, video.width, video.height);
-        contextSource.fillRect(notes[0].area.x-40, notes[0].area.y-40, notes[0].area.width+80, 40);
-        contextSource.fillRect(notes[0].area.x-40, notes[0].area.y+notes[0].area.height,
-                                                          notes[0].area.width+80, 40);
-        contextSource.fillRect(notes[0].area.x-40, notes[0].area.y, 40, notes[0].area.height);
-        contextSource.fillRect(notes[0].area.x+notes[0].area.width, notes[0].area.y,
-                                                           40, notes[0].area.height);
     }
 
     function updateCounter() {
