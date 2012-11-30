@@ -1,5 +1,4 @@
 (function() {
-
     function hasGetUserMedia() {
         // Note: Opera builds are unprefixed.
         return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
