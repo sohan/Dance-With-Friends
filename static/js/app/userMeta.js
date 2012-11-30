@@ -5,18 +5,22 @@ define([
   'backbone',
   'app',
   'socket',
-], function($, _, Backbone, App, socket) {
+], function($, _, Backbone, App, Socket) {
     var UserMeta = App.UserMeta || {};
 
     UserMeta.Model = Backbone.Model.extend({
         defaults: {
             score: 0.0,
             name: undefined,
-            elapsedTime: 0.0
+            elapsedTime: 0.0,
+            players: [],
         },
-        update: function() {
-
-        }
+        initialize: function() {
+            this.on('change:score', this.sync, this);
+        },
+        sync: function() {
+            Socket.updateScore(this.get('score'));
+        },
     });
 
     UserMeta.View = Backbone.View.extend({
@@ -24,7 +28,7 @@ define([
         el: $('#user-meta-container'),
         initialize: function() {
             this.model.on('change', this.render, this);
-            socket.on('sync', $.proxy(this.syncUserMeta, this));
+            Socket.socket.on('sync', $.proxy(this.syncUserMeta, this));
             this.render();
         },
         render: function() {
@@ -33,6 +37,7 @@ define([
         },
         syncUserMeta: function(data) {
             this.model.set('elapsedTime', data.time); 
+            this.model.set('players', data.users);
         },
     });
 

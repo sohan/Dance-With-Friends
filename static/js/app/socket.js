@@ -2,7 +2,25 @@ define([
     'app',
     'socketio',
 ], function(App, SocketIO) {
-    var socket = App.socket || io.connect('http://localhost:8082');
+    var Socket = App.Socket || {};
+    Socket.socket = Socket.socket || io.connect('http://localhost:8082');
 
-    return socket;
+    Socket.startGame = function() {
+        Socket.socket.emit('start', {});
+    }
+
+    Socket.doMove = function(move, currentTime) {
+        Socket.socket.emit('move', {
+            move: move,
+            currentTime: currentTime
+        });
+    }
+
+    Socket.updateScore = function(score) {
+        Socket.socket.emit('updateScore', {
+            score: score
+        });
+    }
+
+    return Socket;
 });
