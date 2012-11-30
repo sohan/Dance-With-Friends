@@ -3,8 +3,9 @@ define([
   'underscore',
   'backbone',
   'app',
-  'game'
-], function($, _, Backbone, App, Game) {
+  'game',
+  'userMeta'
+], function($, _, Backbone, App, Game, UserMeta) {
     var Router = Backbone.Router.extend({
         routes: {
             '*all': 'index'

@@ -51,6 +51,13 @@ define([
             this.model.off(null, null, this);
             this.off(null, null, this);
         },
+        glow: function() {
+            var el = this.renderedEl;
+            el.addClass('glow');
+            setInterval(function() {
+                el && el.removeClass('glow');
+            }, 500);
+        },
         render: function() {
             var arrowContainer, klass;
             switch (this.model.get('direction')) {
