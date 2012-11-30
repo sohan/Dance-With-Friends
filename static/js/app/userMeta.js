@@ -17,16 +17,10 @@ define([
         },
         initialize: function() {
             this.on('change:score', this.sync, this);
-            FB.login(function(response) {
-                if (response.authResponse) {
-                    FB.api('/me', function(response) {
-                        Socket.setUser({
-                            id: response.id,
-                            name: response.name,
-                            pic: 'http://graph.facebook.com/' + response.username + '/picture'
-                        });
-                    });
-                }
+            Socket.setUser({
+                id: window.userId,
+                name: window.userName,
+                pic: window.userPic,
             });
         },
         sync: function() {
