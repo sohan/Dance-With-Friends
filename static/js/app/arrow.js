@@ -36,7 +36,7 @@ define([
         updatePosition: function(currentTime) {
             var vel = App.gameInstance.get('velocity');
             var timeLeft = this.model.get('finalTimestamp') - currentTime;
-
+            console.log(currentTime)
             y = vel * timeLeft;
 
             this.model.set('pos', y);

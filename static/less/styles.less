@@ -36,6 +36,7 @@ html, body, #game-container, .game-container, .pane #user-meta-container {
 }
 
 #game-container {
+    display: none;
     position: relative;
 }
 
@@ -261,7 +262,8 @@ html, body, #game-container, .game-container, .pane #user-meta-container {
 
 #logo {
     background-image: url('../img/logo.png');
-    width: 610px;
+    background-size: contain;
+    width: 100%;
     height: 300px;
     margin-bottom:20px;
 }
@@ -295,7 +297,7 @@ html, body, #game-container, .game-container, .pane #user-meta-container {
     border: none;
     width: auto;
     position: absolute;
-    top: 300px;
+    top: 200px;
     right: 10%;
     left: 0px;
     padding-top:10px;
@@ -303,6 +305,10 @@ html, body, #game-container, .game-container, .pane #user-meta-container {
 
     font-size: 13pt;
     text-align: left;
+}
+
+.right-div {
+    position: relative;
 }
 
 #loading {
