@@ -120,18 +120,18 @@ define([
             soundManager.play('gangamstyle');
 
             // If we're using feet, position markers:
-            if (this.model.get('game_type') == 'feet'){
+            /*if (this.model.get('game_type') == 'feet'){
                 $('#arrow0').css('left', this.model.get('gameWidth') * .22 - $('#arrow0').width()/2)
                 $('#arrow1').css('left', this.model.get('gameWidth') * .498 - $('#arrow1').width()/2)
                 $('#arrow2').css('left', this.model.get('gameWidth') * .775 - $('#arrow2').width()/2)
                 $('#arrow0').css('top', this.model.get('gameHeight') * .697 - $('#arrow0').height()/2)
                 $('#arrow1').css('top', this.model.get('gameHeight') * .906 - $('#arrow1').height()/2)
                 $('#arrow2').css('top', this.model.get('gameHeight') * .697 - $('#arrow2').height()/2)
-            } else {
+            } else {*/
                 $('#arrow0').hide();
                 $('#arrow1').hide();
                 $('#arrow2').hide();
-            }
+            //}
 
             this.streaks = [0, 0, 0, 0, 0];
         },
