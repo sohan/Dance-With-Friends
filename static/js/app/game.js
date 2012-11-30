@@ -296,7 +296,6 @@ define([
     });
 
     Game.initialize = function(user) {
-
         var sensor_hit = function(r) {
             if (r == 0) {
                 App.gameView.processMove('left', App.gameInstance.get('currentTime'));
@@ -369,8 +368,10 @@ define([
                 App.gameView = gameView;
                 App.user = user;
 
+                $('#game-container').show();
 
                 vision.startVision($, sensor_hit, window.game_type);
+
 
             });
         }
