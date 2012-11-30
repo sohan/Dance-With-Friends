@@ -5,7 +5,8 @@ define([
   'app',
   'arrow',
   'songMeta',
-], function($, _, Backbone, App, Arrow, SongMeta) {
+  'userMeta',
+], function($, _, Backbone, App, Arrow, SongMeta, UserMeta) {
     var Game = App.Game || {};
 
     Game.Model = Backbone.Model.extend({
@@ -13,12 +14,12 @@ define([
             startTime: new Date().getTime(),
             players: {}, //id to player state
             arrows: {},
-            timeMoves: [],
             gameFPS: 30,
-            velocity: 20,
-            timeToTop: 5.0,
-            bufferZoneTime: 3.0,
-            score: 0,
+            velocity: .1,
+            timeToTop: 5000,
+            bufferZoneTime: 3000,
+            currentSong: SongMeta['Gangam Style'],
+            songIndex: 0 // The current index in the song stamp list 
         },
         getTimeOffset: function() {
             return new Date().getTime() - this.get('startTime');
@@ -30,26 +31,17 @@ define([
         initialize: function() {
             this.interval = setInterval($.proxy(this.runGameLoop, this), 1000 / this.model.get('gameFPS'));
             $(document).on('keyup', $.proxy(this.detectMove, this));
-            //TODO: change arrows into a Backbone collection
-            this.arrows = [];
-            this.arrows.push(new Arrow.View({
-                model: new Arrow.Model({
-                    direction: 'l',
-                })
-            }));
-            this.arrows.push(new Arrow.View({
-                model: new Arrow.Model({
-                    direction: 'r'
-                })
-            }));
+            this.arrows = [];            
             
-            this.model.set('gameHeight', $(this.el).height());
-            $(window).resize(function() {
+            $(window).resize($.proxy(function() {
                 this.model.set('gameHeight', $(this.el).height());
-            }, this);
+                this.model.set('timeToTop', this.model.get('gameHeight')/this.model.get('velocity'));
+                this.model.set('bufferZoneTime', this.model.get('gameHeight')/this.model.get('velocity'));
+            }, this));
+            $(window).resize();
         },
         detectMove: function(e) {
-            var currentTime = new Date().getTime();
+            var currentTime = this.model.getTimeOffset();
             var move = null;
             if (e.which == 72) { //h
                 move = 'l';
@@ -60,14 +52,16 @@ define([
             } else if (e.which == 76) { //l
                 move = 'r';
             }
-            processMove(move);
+            this.processMove(move, currentTime);
         },
-        processMove: function(move) {
+        processMove: function(move, currentTime) {
             if (move) {
+                this.showMove(move);
                 _.each(this.arrows, function(arrow) {
                     if (move == arrow.model.get('direction')) {
                         //TODO: check if timestamp is based off the right vars
-                        var timeDiff = arrow.model.get('finalTimestamp') - (currentTime - arrow.model.get('timestamp'));
+                        var timeDiff = arrow.model.get('finalTimestamp') - currentTime;
+                        console.log(timeDiff);
                         var score = this.scoreMove(timeDiff);
                         if (score > 0) {
                             this.updateScore(score, arrow);
@@ -75,6 +69,9 @@ define([
                     }
                 }, this);
             }
+        },
+        showMove: function(move) {
+            //TODO: give some feedback that the move happened
         },
         scoreMove: function(timeDiff) {
             //time diff is in milliseconds
@@ -88,20 +85,20 @@ define([
              * */
             if (timeDiff < 0) {
                 return 0;
-            } else if (timeDiff < 100) {
+            } else if (timeDiff < 50) {
                 return 4;
-            } else if (timeDiff < 250) {
+            } else if (timeDiff < 100) {
                 return 3;
-            } else if (timeDiff < 500) {
+            } else if (timeDiff < 200) {
                 return 2;
-            } else if (timeDiff < 1000) {
+            } else if (timeDiff < 300) {
                 return 1;
             } else {
                 return 0;
             }
         },
         updateScore: function(score, arrow) {
-            this.model.set('score', this.model.get('score') + score * 1000);
+            App.user.set('score', App.user.get('score') + score * 1000);
             arrow.glow();
             //TODO: show popup with score word
             //TODO: highlight the arrow or something
@@ -115,39 +112,72 @@ define([
             var forRemoval = [];
              _.each(this.arrows, function(arrow) {
                 arrow.updatePosition(currentTime);
-                var gameHeight = App.gameInstance.get('gameHeight');
                 var pos = arrow.model.get('pos');
-                if (pos > gameHeight) {
+                if (pos < 0) {
                     arrow.destroy();
                     forRemoval.push(arrow);
                 }
             }, this);
             this.removeArrows(forRemoval);
         },
+        addNewArrows: function(currentTime) {
+            // Add arrows within the timestamp buffer
+            var stop = false;
+            var currentSong = this.model.get('currentSong');
+            while(!stop) {
+                var songIndex = this.model.get('songIndex');
+                if (songIndex >= currentSong.length)
+                    break;
+                // If the timestamp for the arrow puts it on our screen
+                if (currentSong[songIndex].timestamp <
+                        this.model.get('timeToTop')
+                         + this.model.get('bufferZoneTime')
+                         + currentTime) {
+                    console.log('added arrow ', currentSong[songIndex].type);
+                    this.arrows.push(new Arrow.View({
+                        model: new Arrow.Model({
+                            direction: currentSong[songIndex].type,
+                            startTimestamp: currentTime,
+                            finalTimestamp: currentSong[songIndex].timestamp
+                        })
+                    }));
+
+                    this.model.set('songIndex', songIndex+1);
+
+                } else { //Otherwise we stop because none past it will be true either
+                    stop = true;
+                }
+            
+            }
+        },
+
         runGameLoop: function() {
             var newTime = this.model.getTimeOffset();
-            var currentTime = new Date().getTime();
+            var currentTime = this.model.getTimeOffset();
+            this.addNewArrows(currentTime);
             this.updateArrows(currentTime);
         },
         render: function() {
         },
     });
 
-    Game.initialize = function() {
+    Game.initialize = function(user) {
         /*
          * key: seconds
          * value: list of arrows that should appear at that time
          * */
 
         var game = new Game.Model({
-            //velocity: pixels per second
-            timeMoves: SongMeta['Gangam Style'],
-            velocity: 100,
         });
         var gameView = new Game.View({
             model: game
         });
+        var user = new UserMeta.Model();
+        var userView = new UserMeta.View({
+            model: user
+        });
         App.gameInstance = game;
+        App.user = user;
     }
 
     return Game;

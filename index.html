@@ -11,6 +11,7 @@
     <div class="container-fluid game-container">
       <div class="row-fluid game-container">
         <div class="span3 left-pane pane">
+          <div id="user-meta-container"></div>
         </div>
         <div class="span9 right-pane pane">
           <div id="game-container">
@@ -30,6 +31,11 @@
     <script type="template" id="template-arrow">
       <div class="arrow <%= klass %>">
       </div>
+    </script>
+    <script type="template" id="template-usermeta">
+      <h2 class="score">
+        <%= score %>
+      </h2>
     </script>
   </body>
 </html>
