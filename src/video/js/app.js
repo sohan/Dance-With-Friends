@@ -12,8 +12,6 @@
 	} else {
 		$("#info").show();
 		$("#message").hide();
-		$("#video-demo").show();
-		$("#video-demo")[0].play();
 		return;
 	}
 
@@ -43,7 +41,12 @@
 		null
 	);
 
-	var notesPos = [0, 82, 159, 238, 313, 390, 468, 544];
+    function Point(x, y){
+        this.x = x || 0;
+        this.y = y || 0;
+    }
+    // Ugly absolute calculation of arrow positions (top, left, right, bottom)
+	var arrowsPos = [Point(640/2 - 38/2, 0), Point(0, 480/2 - 44/2), Point(640 - 38/2, 480/2 - 44/2), Point(640/2 - 38/2, 480/2 - 44/2)]
 
 	var timeOut, lastImageData;
 	var canvasSource = $("#canvas-source")[0];
@@ -54,7 +57,7 @@
 
 	var soundContext;
 	var bufferLoader;
-	var notes = [];
+	var arrows = [];
 
 	// mirror video
 	contextSource.translate(canvasSource.width, 0);
@@ -94,13 +97,13 @@
 			var source = soundContext.createBufferSource();
 			source.buffer = bufferList[i];
 			source.connect(soundContext.destination);
-			var note = {
+			var arrow = {
 				note: source,
 				ready: true,
-				visual: $("#note" + i)[0]
+				visual: $("#arrow" + i)[0]
 			};
-			note.area = {x:notesPos[i], y:0, width:note.visual.width, height:100};
-			notes.push(note);
+			arrow.area = {x:arrowsPos[i].x, y:arrosPos[i].y, width:arrow.visual.width, height:arrow.visual.height};
+			arrows.push(arrow);
 		}
 		start();
 	}
@@ -123,7 +126,7 @@
 	function start() {
 		$(canvasSource).show();
 		$(canvasBlended).show();
-		$("#xylo").show();
+		$("#arrows").show();
 		$("#message").hide();
 		$("#description").show();
 		update();
@@ -195,10 +198,10 @@
 	}
 
 	function checkAreas() {
-		// loop over the note areas
-		for (var r=0; r<8; ++r) {
-			// get the pixels in a note area from the blended image
-			var blendedData = contextBlended.getImageData(notes[r].area.x, notes[r].area.y, notes[r].area.width, notes[r].area.height);
+		// loop over the arrow areas
+		for (var r=0; r<4; ++r) {
+			// get the pixels in a arrow area from the blended image
+			var blendedData = contextBlended.getImageData(arrows[r].area.x, arrows[r].area.y, arrows[r].area.width, arrows[r].area.height);
 			var i = 0;
 			var average = 0;
 			// loop over the pixels
@@ -207,14 +210,14 @@
 				average += (blendedData.data[i*4] + blendedData.data[i*4+1] + blendedData.data[i*4+2]) / 3;
 				++i;
 			}
-			// calculate an average between of the color values of the note area
+			// calculate an average between of the color values of the arrow area
 			average = Math.round(average / (blendedData.data.length * 0.25));
 			if (average > 10) {
 				// over a small limit, consider that a movement is detected
 				// play a note and show a visual feedback to the user
-				playSound(notes[r]);
-				notes[r].visual.style.display = "block";
-				$(notes[r].visual).fadeOut();
+				playSound(arrows[r]);
+				arrows[r].visual.style.display = "block";
+				$(arrows[r].visual).fadeOut();
 			}
 		}
 	}
