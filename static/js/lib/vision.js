@@ -121,10 +121,12 @@ vision.startVision = function($, hit_callback) {
             var note = {
                 note: source,
                 ready: true,
+                jq: $('#arrow'+i),
                 visual: $("#arrow" + i)[0]
             };
             note.area = {x:arrowPosX[i], y:arrowPosY[i],
                          width:note.visual.width, height:44};
+
             notes.push(note);
             oldAvg = [];
             newAvg = [];
@@ -355,8 +357,8 @@ vision.startVision = function($, hit_callback) {
                 // play a note and show a visual feedback to the user
                 lastHits[r] = 0;
                 playSound(notes[r]);
-                notes[r].visual.style.display = "block";
-                $(notes[r].visual).fadeOut();
+                //notes[r].visual.style.display = "block";
+                //$(notes[r].visual).fadeOut();
                 timesHit++;
 
                 // Callback with the note

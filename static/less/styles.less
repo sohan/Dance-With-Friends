@@ -5,6 +5,8 @@
 @arrow_hit_size: 160px;
 @spot_size: 180px;
 @hit_buffer: 50px; /* How much top margin for the hit zones */
+@floor_marker_width: 100px;
+@floor_marker_height: 100px;
 
 html, body, #game-container, .game-container, .pane #user-meta-container {
     height: 100%;
@@ -167,13 +169,17 @@ html, body, #game-container, .game-container, .pane #user-meta-container {
 
 #arrow0 { 
     .arrows;
-    left: 137px; top: 300px; }
+    left: 22% - @floor_marker_width / 2px;
+    top: 69.7% - @floor_marker_height / 2px;
+}
 #arrow1 { 
     .arrows;
-    left: 284px; top: 380px; }
+    left: 49.8% - @floor_marker_width / 2px;
+     top: 90.6% - @floor_marker_height / 2px; }
 #arrow2 { 
     .arrows;
-    left: 431px; top: 300px; }
+    left: 77.5% - @floor_marker_width / 2px;
+     top: 69.7% - @floor_marker_height / 2px; }
 
 #exclamation {
     position: absolute;

@@ -16,6 +16,7 @@ define([
             startTime: undefined,
             currentTime: undefined,
             players: {}, //id to player state
+            gameType: 'hands', // 'feet'
             arrows: {},
             gameFPS: 30,
             velocity: .1,
@@ -84,6 +85,7 @@ define([
 
             $(window).resize($.proxy(function() {
                 this.model.set('gameHeight', $(this.el).height());
+                this.model.set('gameWidth', $(this.el).width());
                 this.model.set('timeToTop', this.model.get('gameHeight')/this.model.get('velocity'));
                 this.model.set('bufferZoneTime', this.model.get('gameHeight')/this.model.get('velocity'));
             }, this));
@@ -95,6 +97,16 @@ define([
             });
             this.song = options.song || null;
             this.song.noteOn(0, this.model.getTimeOffset());
+
+            // If we're using feet, position markers:
+            if (this.model.get('gameType')){
+                $('#arrow0').css('left', this.model.get('gameWidth') * .22 - $('#arrow0').width()/2)
+                $('#arrow1').css('left', this.model.get('gameWidth') * .498 - $('#arrow1').width()/2)
+                $('#arrow2').css('left', this.model.get('gameWidth') * .775 - $('#arrow2').width()/2)
+                $('#arrow0').css('top', this.model.get('gameHeight') * .697 - $('#arrow0').height()/2)
+                $('#arrow1').css('top', this.model.get('gameHeight') * .906 - $('#arrow1').height()/2)
+                $('#arrow2').css('top', this.model.get('gameHeight') * .697 - $('#arrow2').height()/2)
+            }
         },
         detectMove: function(e) {
             var hit_box = '';
@@ -324,7 +336,7 @@ define([
             Socket.startGame();
             Socket.socket.on('startGame', function(data) {
                 var game = new Game.Model({
-                    startTime: new Date().getTime() - data.time
+                    startTime: 0//new Date().getTime() - data.time
                 });
                 var gameView = new Game.View({
                     model: game,
@@ -338,7 +350,7 @@ define([
                 App.gameView = gameView;
                 App.user = user;
 
-                
+
                 vision.startVision($, sensor_hit);
 
                 setDelay();
