@@ -10,3 +10,5 @@ Jasdeep Hundal
 Sohan Jain
 John Oliver
 Harry Terkelsen
+
+![Dance with Friends demo](https://raw.github.com/sohan/Dance-With-Friends/master/dance_with_friends_cornell.png "Dance with Friends hands demo")
