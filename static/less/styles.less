@@ -11,7 +11,6 @@
 html, body, #game-container, .game-container, .pane #user-meta-container {
     height: 100%;
     overflow:hidden;
-    text-transform: uppercase;
 }
 
 #user-meta-container {
@@ -37,6 +36,7 @@ html, body, #game-container, .game-container, .pane #user-meta-container {
 }
 
 #game-container {
+    display: none;
     position: relative;
 }
 
@@ -212,6 +212,103 @@ html, body, #game-container, .game-container, .pane #user-meta-container {
     &.bad {
         color: darken(@red, 15%);
     }
+}
+
+.center {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.description-text {
+    position: absolute;
+    width: 100%;
+    color: #222;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    color: rgba(256,256,256,.9);
+    font-size: 20pt;
+    margin-top: 20px;
+    background: rgba(1,1,1,.7);
+    padding-top: 20px;
+    height: 60px;
+    bottom: -2px;
+    border: solid 1px #DDD;
+
+}
+
+.gen-button {
+    font-size: 19pt;
+    font-family: Arial, sans-serif;
+    background: rgba(.6,.8,.8, .3);
+    color: white;
+    border: solid 1px #DDD;
+}
+
+.gen-button:hover {
+    -webkit-box-shadow: 0 0px 4px rgba(2,2,2,.2);
+    -moz-box-shadow: 0 0px 4px rgba(2,2,2,.2);
+    box-shadow: 0 0px 4px rgba(2,2,2,.2);
+    background: rgba(.8,.8,.8, .15);
+    color: rgba(255,255,255, .5);
+}
+
+#fb-login {
+    height: 70px;
+    background: rgba(.6,.8,.8, .3);
+    color: white;
+    -webkit-transition: all 1s bicubic;
+}
+
+
+#logo {
+    background-image: url('../img/logo.png');
+    background-size: contain;
+    width: 100%;
+    height: 300px;
+    margin-bottom:20px;
+}
+
+#backk {
+    background-image: url('../img/party-back.jpg');
+    background-size: cover;
+}
+
+
+.fill-vert {
+    height: 100%;
+}
+
+.middle {
+    position: relative;
+}
+
+#game-picker {
+    display: none;
+    height: 70px;
+}
+
+.note {
+    color: #E99;
+}
+
+#tooltip {
+    .description-text;
+    display: none;
+    border: none;
+    width: auto;
+    position: absolute;
+    top: 200px;
+    right: 10%;
+    left: 0px;
+    padding-top:10px;
+    padding-left:10px;
+
+    font-size: 13pt;
+    text-align: left;
+}
+
+.right-div {
+    position: relative;
 }
 
 #loading {

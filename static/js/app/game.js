@@ -8,6 +8,7 @@ define([
   'userMeta',
   'socket',
   'bufferloader',
+  'soundmanager2',
 ], function($, _, Backbone, App, Arrow, SongMeta, UserMeta, Socket) {
     var Game = App.Game || {};
 
@@ -16,7 +17,7 @@ define([
             startTime: undefined,
             currentTime: undefined,
             players: {}, //id to player state
-            gameType: 'hands', // 'feet'
+            game_type: 'hands', // 'feet'
             arrows: {},
             gameFPS: 30,
             velocity: .1,
@@ -26,7 +27,7 @@ define([
             songIndex: 0 // The current index in the song stamp list
         },
         getTimeOffset: function() {
-            return new Date().getTime() - this.get('startTime') - this.get('delay');
+            return new Date().getTime() - this.get('startTime')
         },
     });
 
@@ -110,23 +111,27 @@ define([
             new Game.ExclamationView({
                 model: this.exclamation
             });
-            this.song = options.song || null;
-            console.log('start game at', this.model.getTimeOffset()/1000, this.song.buffer.duration);
-            this.song.noteGrainOn(0, this.model.getTimeOffset()/1000, this.song.buffer.duration);
+
+            soundManager.createSound({
+                 id:'gangamstyle',
+                 url:'../static/songs/gangamstyle.mp3'
+            });
+            soundManager.setPosition('gangamstyle',this.model.getTimeOffset());
+            soundManager.play('gangamstyle');
 
             // If we're using feet, position markers:
-            if (this.model.get('gameType')){
+            /*if (this.model.get('game_type') == 'feet'){
                 $('#arrow0').css('left', this.model.get('gameWidth') * .22 - $('#arrow0').width()/2)
                 $('#arrow1').css('left', this.model.get('gameWidth') * .498 - $('#arrow1').width()/2)
                 $('#arrow2').css('left', this.model.get('gameWidth') * .775 - $('#arrow2').width()/2)
                 $('#arrow0').css('top', this.model.get('gameHeight') * .697 - $('#arrow0').height()/2)
                 $('#arrow1').css('top', this.model.get('gameHeight') * .906 - $('#arrow1').height()/2)
                 $('#arrow2').css('top', this.model.get('gameHeight') * .697 - $('#arrow2').height()/2)
-            } else {
-                $('#arrow0').hide(); 
+            } else {*/
+                $('#arrow0').hide();
                 $('#arrow1').hide();
                 $('#arrow2').hide();
-            }
+            //}
 
             this.streaks = [0, 0, 0, 0, 0];
         },
@@ -291,28 +296,6 @@ define([
     });
 
     Game.initialize = function(user) {
-
-
-        Game.loading_start('Allow camera access in your toolbar above!');
-        var soundContext;
-        var songBufferSource;
-        var AudioContext = (
-            window.AudioContext ||
-                window.webkitAudioContext ||
-                null
-        );
-
-        var initializeMedia = function() {
-            if (!AudioContext) {
-                console.log("AudioContext not supported!");
-            }
-            else {
-                loadSongs();
-            }
-
-
-        }
-
         var sensor_hit = function(r) {
             if (r == 0) {
                 App.gameView.processMove('left', App.gameInstance.get('currentTime'));
@@ -323,26 +306,12 @@ define([
             }
         }
 
-        var loadSongs = function() {
-            Game.loading_start('Buffering audio...');
-            soundContext = new AudioContext();
-            bufferLoader = new BufferLoader(soundContext,
-                                            [
-                                                'static/songs/gangamstyle.mp3',
-                                            ],
-                                            createSongBufferSource
-                                           );
-            bufferLoader.load();
-        }
-
-        var createSongBufferSource = function(bufferList) {
-            songBufferSource = soundContext.createBufferSource();
-            songBufferSource.buffer = bufferList[0];
-            songBufferSource.connect(soundContext.destination);
-            Game.loading_end();
-            setDelay();
-            // Load our vision system from the namespace provided in vision.js
-
+        var loadSoundManager = function() {
+            soundManager.setup({
+                url: '/',
+                preferFlash: false,
+                onready: setDelay
+            })
         }
 
         var setDelay = function() {
@@ -380,16 +349,16 @@ define([
 
         var initGame = function(delay) {
             Game.loading_start('Loading game assets...');
+
             Socket.startGame();
             Socket.socket.on('startGame', function(data) {
                 Game.loading_end();
                 var game = new Game.Model({
-                    startTime: new Date().getTime() - data.time,
-                    delay: delay
+                    startTime: new Date().getTime() - data.time - delay,
+                    game_type: window.game_type
                 });
                 var gameView = new Game.View({
                     model: game,
-                    song: songBufferSource
                 });
                 var user = new UserMeta.Model();
                 var userView = new UserMeta.View({
@@ -399,8 +368,10 @@ define([
                 App.gameView = gameView;
                 App.user = user;
 
+                $('#game-container').show();
 
-                vision.startVision($, sensor_hit);
+                vision.startVision($, sensor_hit, window.game_type);
+
 
             });
         }
@@ -409,14 +380,14 @@ define([
         if (navigator.getUserMedia) {
             navigator.getUserMedia({audio: false, video: true}, function(stream) {
                 video.src = stream;
-                 initializeMedia();
+                 loadSoundManager();
             }, null);
         } else {
             navigator.getMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
             if (navigator.getMedia) {
                 navigator.getMedia({audio: true, video: true}, function(stream) {
                     video.src = window.URL.createObjectURL(stream);
-                    initializeMedia();
+                    loadSoundManager();
                 }, null);
             }
         }

@@ -10,6 +10,7 @@ require.config({
     bootstrap: '../lib/bootstrap.min',
     bufferloader: '../lib/buffer-loader',
     socketio: '/socket.io/socket.io.js',
+    soundmanager2: '../lib/soundmanager2-jsmin',
   },
   shim: {
     underscore: {

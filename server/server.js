@@ -121,7 +121,7 @@ init_player = function(id) {
 
         ],
         offset: 0,
-        name: id,
+        name: 'Anonymous',
         pic: '',
     };
 };
@@ -132,12 +132,16 @@ app.get('/dance', function (req, res) {
         if (authenticated) {
             var details = req.getAuthDetails();
             console.log('details', details);
+
+            var game_type = req.query['game_type'];
+             console.log(game_type)
             res.render('dance', {
                 fbName: details.user.name,
                 fbId: details.user.id,
                 fbPic: 'https://graph.facebook.com/' + details.user.username + '/picture',
                 hostname: hostname,
-                socketPort: socketPort
+                socketPort: socketPort,
+                game_type: game_type
             });
         } else {
             res.write('<html><body><h1>couldnt log in</h1></body></html>');

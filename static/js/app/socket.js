@@ -10,10 +10,12 @@ define([
     }
 
     Socket.doMove = function(move, currentTime) {
+        /*
         Socket.socket.emit('move', {
             move: move,
             currentTime: currentTime
         });
+        */
     }
 
     Socket.updateScore = function(score) {
