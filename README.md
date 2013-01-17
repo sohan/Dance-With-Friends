@@ -6,9 +6,13 @@ An in-browser, multiplayer Dance Dance Revolution game built using WebRTC, web s
 Move your hands or feet (depending on the mode selected by the user) into areas on the screen to match arrows that are synchronized to music. Compete with your friends for the highest score in every game.
 
 FB Hackathon International Finals 2012, for Cornell University
+
 Jasdeep Hundal
+
 Sohan Jain
+
 John Oliver
+
 Harry Terkelsen
 
 ![Dance with Friends demo](https://raw.github.com/sohan/Dance-With-Friends/master/dance_with_friends_cornell.png "Dance with Friends hands demo")
